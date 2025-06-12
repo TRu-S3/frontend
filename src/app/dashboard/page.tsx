@@ -1,7 +1,5 @@
 import { redirect } from 'next/navigation'
 import { getSession, getCurrentUser } from '@/features/auth/config/auth'
-import { Button } from '@/components/ui/button'
-import Link from 'next/link'
 import Image from 'next/image'
 
 export default async function DashboardPage() {
