@@ -1,44 +1,75 @@
 import { NextAuthOptions } from 'next-auth'
-import GoogleProvider from 'next-auth/providers/google'
+import CredentialsProvider from 'next-auth/providers/credentials'
+import { auth } from '@/features/auth/firebase/admin'
 
 // NextAuthの型を拡張
 declare module 'next-auth' {
   interface User {
     id: string
+    uid: string
+    emailVerified?: boolean
   }
   interface Session {
     user: {
       id: string
+      uid: string
       name?: string | null
       email?: string | null
       image?: string | null
+      emailVerified?: boolean
     }
   }
 }
 
 export const authOptions: NextAuthOptions = {
   providers: [
-    GoogleProvider({
-      clientId: process.env.GOOGLE_CLIENT_ID || '',
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET || '',
+    CredentialsProvider({
+      name: 'credentials',
+      credentials: {
+        idToken: { type: 'text' },
+      },
+      authorize: async (credentials) => {
+        const idToken = credentials?.idToken
+        if (!idToken) return null
+        if (idToken) {
+          try {
+            // Firebase Admin SDKでidTokenを検証
+            const decoded = await auth.verifyIdToken(idToken)
+
+            return {
+              id: decoded.uid,
+              uid: decoded.uid,
+              name: decoded.name,
+              email: decoded.email,
+              image: decoded.picture,
+              emailVerified: decoded.email_verified,
+            }
+          } catch (err) {
+            console.error('Firebase token verification failed:', err)
+          }
+        }
+        return null
+      },
     }),
   ],
+  session: {
+    strategy: 'jwt',
+  },
   callbacks: {
-    async session({ session, token }) {
-      if (session?.user && token?.sub) {
-        session.user.id = token.sub
-      }
-      return session
-    },
-    async jwt({ user, token }) {
+    async jwt({ token, user }) {
       if (user) {
-        token.uid = user.id
+        return { ...token, ...user }
       }
       return token
     },
-  },
-  session: {
-    strategy: 'jwt',
+    async session({ session, token }) {
+      if (session?.user && token) {
+        session.user.id = token.uid as string
+        session.user.uid = token.uid as string
+        session.user.emailVerified = token.emailVerified as boolean
+      }
+      return session
+    },
   },
   pages: {
     signIn: '/signin',
