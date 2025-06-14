@@ -33,7 +33,19 @@ export default function Header({ session }: HeaderProps) {
             <div className='w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20'>
               <Users className='w-6 h-6 text-white font-bold' />
             </div>
-            <span className='text-2xl font-bold text-gray-900 tracking-tight'>SupaMatch.ai</span>
+            {session ? (
+              <Link href='/home'>
+                <span className='text-2xl font-bold text-gray-900 tracking-tight'>
+                  SupaMatch.ai
+                </span>
+              </Link>
+            ) : (
+              <Link href='/'>
+                <span className='text-2xl font-bold text-gray-900 tracking-tight'>
+                  SupaMatch.ai
+                </span>
+              </Link>
+            )}
           </div>
           <div className='hidden md:flex space-x-10 flex-1 justify-center'>
             {session ? (
