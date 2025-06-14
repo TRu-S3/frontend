@@ -30,7 +30,7 @@ export default function Header({ session }: HeaderProps) {
         <div className='flex justify-between items-center h-16'>
           {/* ロゴ */}
           <div className='flex items-center'>
-            <Link href='/' className='flex items-center space-x-2'>
+            <Link href='/home' className='flex items-center space-x-2'>
               <div className='w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center'>
                 <span className='text-white font-bold text-sm'>MY</span>
               </div>
@@ -40,7 +40,7 @@ export default function Header({ session }: HeaderProps) {
 
           {/* ナビゲーションメニュー */}
           <nav className='hidden md:flex items-center space-x-8'>
-            <Link href='/' className='text-gray-600 hover:text-gray-900 transition-colors'>
+            <Link href='/home' className='text-gray-600 hover:text-gray-900 transition-colors'>
               ホーム
             </Link>
             <Link href='/dashboard' className='text-gray-600 hover:text-gray-900 transition-colors'>
