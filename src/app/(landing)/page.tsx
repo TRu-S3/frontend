@@ -9,9 +9,6 @@ import {
   Code,
   Shield,
   Sparkles,
-  Github,
-  Linkedin,
-  Twitter,
   CheckCircle,
   Star,
   Database,
@@ -20,7 +17,6 @@ import {
   Search,
   CornerDownLeft,
 } from 'lucide-react'
-import Link from 'next/link'
 import { useSession } from 'next-auth/react'
 import { redirect } from 'next/navigation'
 
