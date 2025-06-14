@@ -26,7 +26,7 @@ export default function Header({ session }: HeaderProps) {
   }
 
   return (
-    <nav className=' bg-white/90 backdrop-blur-xl border-b border-blue-500/20 shadow-sm'>
+    <nav className='fixed top-0 left-0 right-0 z-50 bg-white/20 backdrop-blur-xl border-b border-blue-500/20 shadow-sm'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
         <div className='flex items-center h-16'>
           <div className='flex items-center space-x-3 flex-1'>
