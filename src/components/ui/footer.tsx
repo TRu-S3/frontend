@@ -1,89 +1,115 @@
-import Link from 'next/link'
-
+import { Users, Twitter, Github, Linkedin } from 'lucide-react'
 export default function Footer() {
   return (
-    <footer className='bg-gray-50 border-t'>
-      <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
-        <div className='grid grid-cols-1 md:grid-cols-3 gap-8'>
-          {/* ロゴとサービス説明 */}
-          <div className='col-span-1'>
-            <div className='flex items-center space-x-2 mb-4'>
-              <div className='w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center'>
-                <span className='text-white font-bold text-sm'>MY</span>
+      <footer className='py-16 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-200'>
+        <div className='max-w-7xl mx-auto'>
+          <div className='grid md:grid-cols-4 gap-8'>
+            <div>
+              <div className='flex items-center space-x-2 mb-4'>
+                <div className='w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center'>
+                  <Users className='w-5 h-5 text-white' />
+                </div>
+                <span className='text-xl font-bold text-gray-900'>SupaMatch</span>
               </div>
-              <span className='text-xl font-bold text-gray-900'>App</span>
+              <p className='text-gray-600 mb-4'>
+                スマートな技術でエンジニア同士の最適なマッチングを実現する次世代プラットフォーム
+              </p>
+              <div className='flex space-x-4'>
+                <a href='#' className='text-gray-400 hover:text-blue-600 transition-colors'>
+                  <Twitter className='w-5 h-5' />
+                </a>
+                <a href='#' className='text-gray-400 hover:text-blue-600 transition-colors'>
+                  <Github className='w-5 h-5' />
+                </a>
+                <a href='#' className='text-gray-400 hover:text-blue-600 transition-colors'>
+                  <Linkedin className='w-5 h-5' />
+                </a>
+              </div>
             </div>
-            <p className='text-gray-600 text-sm'>シンプルで使いやすいWebアプリケーションです。</p>
+
+            <div>
+              <h4 className='text-gray-900 font-semibold mb-4'>プロダクト</h4>
+              <ul className='space-y-2'>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    機能
+                  </a>
+                </li>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    料金
+                  </a>
+                </li>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    API
+                  </a>
+                </li>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    統合
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className='text-gray-900 font-semibold mb-4'>サポート</h4>
+              <ul className='space-y-2'>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    ヘルプセンター
+                  </a>
+                </li>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    お問い合わせ
+                  </a>
+                </li>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    コミュニティ
+                  </a>
+                </li>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    ステータス
+                  </a>
+                </li>
+              </ul>
+            </div>
+
+            <div>
+              <h4 className='text-gray-900 font-semibold mb-4'>企業情報</h4>
+              <ul className='space-y-2'>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    会社概要
+                  </a>
+                </li>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    ブログ
+                  </a>
+                </li>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    採用情報
+                  </a>
+                </li>
+                <li>
+                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
+                    プライバシー
+                  </a>
+                </li>
+              </ul>
+            </div>
           </div>
 
-          {/* リンク */}
-          <div className='col-span-1'>
-            <h3 className='text-sm font-semibold text-gray-900 mb-4'>サービス</h3>
-            <ul className='space-y-2'>
-              <li>
-                <Link
-                  href='/'
-                  className='text-sm text-gray-600 hover:text-gray-900 transition-colors'
-                >
-                  ホーム
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='/dashboard'
-                  className='text-sm text-gray-600 hover:text-gray-900 transition-colors'
-                >
-                  ダッシュボード
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='/signin'
-                  className='text-sm text-gray-600 hover:text-gray-900 transition-colors'
-                >
-                  ログイン
-                </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* サポート */}
-          <div className='col-span-1'>
-            <h3 className='text-sm font-semibold text-gray-900 mb-4'>サポート</h3>
-            <ul className='space-y-2'>
-              <li>
-                <Link
-                  href='#'
-                  className='text-sm text-gray-600 hover:text-gray-900 transition-colors'
-                >
-                  ヘルプ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='#'
-                  className='text-sm text-gray-600 hover:text-gray-900 transition-colors'
-                >
-                  お問い合わせ
-                </Link>
-              </li>
-              <li>
-                <Link
-                  href='#'
-                  className='text-sm text-gray-600 hover:text-gray-900 transition-colors'
-                >
-                  プライバシーポリシー
-                </Link>
-              </li>
-            </ul>
+          <div className='border-t border-gray-200 mt-12 pt-8 text-center text-gray-600'>
+            <p>&copy; 2025 SupaMatch.ai All rights reserved.</p>
           </div>
         </div>
-
-        {/* 下部のコピーライト */}
-        <div className='border-t border-gray-200 mt-8 pt-6'>
-          <p className='text-sm text-gray-500 text-center'>© 2025 MyApp. All rights reserved.</p>
-        </div>
-      </div>
-    </footer>
+      </footer>
   )
 }
