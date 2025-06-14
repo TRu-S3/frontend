@@ -43,50 +43,7 @@ export default function Page() {
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-white via-blue-50 to-white'>
-      {/* Navigation */}
-      <nav className='fixed top-0 w-full z-50 bg-white/90 backdrop-blur-xl border-b border-blue-500/20 shadow-sm'>
-        <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-          <div className='flex justify-between items-center h-18'>
-            <div className='flex items-center space-x-3'>
-              <div className='w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20'>
-                <Users className='w-6 h-6 text-white font-bold' />
-              </div>
-              <span className='text-2xl font-bold text-gray-900 tracking-tight'>SupaMatch.ai</span>
-            </div>
-            <div className='hidden md:flex space-x-10'>
-              <a
-                href='#features'
-                className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
-              >
-                機能
-              </a>
-              <a
-                href='#how-it-works'
-                className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
-              >
-                使い方
-              </a>
-              <a
-                href='#benefits'
-                className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
-              >
-                メリット
-              </a>
-              <a
-                href='#pricing'
-                className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
-              >
-                料金
-              </a>
-            </div>
-            <Link href='/signin'>
-              <Button className='bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 shadow-lg shadow-blue-500/20 px-6 py-2 text-white font-bold'>
-                今すぐ始める
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </nav>
+
 
       {/* Hero Section */}
       <section className='pt-36 pb-24 px-4 sm:px-6 lg:px-8'>
@@ -97,10 +54,10 @@ export default function Page() {
             </div>
             <div className='relative'>
               <h1 className='text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight tracking-tight'>
-                あなたを全て調べて
+                あなたを調べ上げて
                 <br />
                 <span className='bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 bg-clip-text text-transparent'>
-                  強力なエンジニア仲間
+                  最高のエンジニア仲間
                 </span>
                 を発見
               </h1>
@@ -500,117 +457,7 @@ export default function Page() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className='py-16 px-4 sm:px-6 lg:px-8 bg-white border-t border-gray-200'>
-        <div className='max-w-7xl mx-auto'>
-          <div className='grid md:grid-cols-4 gap-8'>
-            <div>
-              <div className='flex items-center space-x-2 mb-4'>
-                <div className='w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center'>
-                  <Users className='w-5 h-5 text-white' />
-                </div>
-                <span className='text-xl font-bold text-gray-900'>SupaMatch</span>
-              </div>
-              <p className='text-gray-600 mb-4'>
-                スマートな技術でエンジニア同士の最適なマッチングを実現する次世代プラットフォーム
-              </p>
-              <div className='flex space-x-4'>
-                <a href='#' className='text-gray-400 hover:text-blue-600 transition-colors'>
-                  <Twitter className='w-5 h-5' />
-                </a>
-                <a href='#' className='text-gray-400 hover:text-blue-600 transition-colors'>
-                  <Github className='w-5 h-5' />
-                </a>
-                <a href='#' className='text-gray-400 hover:text-blue-600 transition-colors'>
-                  <Linkedin className='w-5 h-5' />
-                </a>
-              </div>
-            </div>
 
-            <div>
-              <h4 className='text-gray-900 font-semibold mb-4'>プロダクト</h4>
-              <ul className='space-y-2'>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    機能
-                  </a>
-                </li>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    料金
-                  </a>
-                </li>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    API
-                  </a>
-                </li>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    統合
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className='text-gray-900 font-semibold mb-4'>サポート</h4>
-              <ul className='space-y-2'>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    ヘルプセンター
-                  </a>
-                </li>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    お問い合わせ
-                  </a>
-                </li>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    コミュニティ
-                  </a>
-                </li>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    ステータス
-                  </a>
-                </li>
-              </ul>
-            </div>
-
-            <div>
-              <h4 className='text-gray-900 font-semibold mb-4'>企業情報</h4>
-              <ul className='space-y-2'>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    会社概要
-                  </a>
-                </li>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    ブログ
-                  </a>
-                </li>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    採用情報
-                  </a>
-                </li>
-                <li>
-                  <a href='#' className='text-gray-600 hover:text-blue-600 transition-colors'>
-                    プライバシー
-                  </a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
-          <div className='border-t border-gray-200 mt-12 pt-8 text-center text-gray-600'>
-            <p>&copy; 2024 SupaMatch. All rights reserved.</p>
-          </div>
-        </div>
-      </footer>
     </div>
   )
 }

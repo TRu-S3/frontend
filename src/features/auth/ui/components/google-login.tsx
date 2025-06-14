@@ -14,7 +14,7 @@ function GoogleLogin() {
       // NextAuthにidTokenを渡してセッション作成
       await signIn('credentials', {
         idToken,
-        callbackUrl: '/',
+        callbackUrl: '/home',
       })
     } catch (error) {
       console.error('ログインエラー:', error)
