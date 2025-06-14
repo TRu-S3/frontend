@@ -33,7 +33,7 @@ export default async function RootLayout({
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <div className='min-h-screen flex flex-col'>
             <Header session={session} />
-            <main className='flex-1'>{children}</main>
+            <main className='flex-1 pt-16'>{children}</main>
             <Footer />
           </div>
         </body>

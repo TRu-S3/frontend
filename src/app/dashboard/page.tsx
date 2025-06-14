@@ -12,7 +12,7 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className='container mx-auto p-8'>
+    <div className='container mx-auto px-8 py-8'>
       <div className='max-w-4xl mx-auto'>
         <h1 className='text-3xl font-bold mb-8'>ダッシュボード</h1>
 

@@ -14,6 +14,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { Users } from 'lucide-react'
 
 interface HeaderProps {
   session: Session | null
@@ -25,31 +26,74 @@ export default function Header({ session }: HeaderProps) {
   }
 
   return (
-    <header className='bg-white shadow-sm border-b'>
+    <nav className='fixed top-0 left-0 right-0 z-50 bg-white/20 backdrop-blur-xl border-b border-blue-500/20 shadow-sm'>
       <div className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8'>
-        <div className='flex justify-between items-center h-16'>
-          {/* ロゴ */}
-          <div className='flex items-center'>
-            <Link href='/' className='flex items-center space-x-2'>
-              <div className='w-8 h-8 bg-blue-500 rounded-lg flex items-center justify-center'>
-                <span className='text-white font-bold text-sm'>MY</span>
-              </div>
-              <span className='text-xl font-bold text-gray-900'>App</span>
-            </Link>
+        <div className='flex items-center h-16'>
+          <div className='flex items-center space-x-3 flex-1'>
+            <div className='w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20'>
+              <Users className='w-6 h-6 text-white font-bold' />
+            </div>
+            {session ? (
+              <Link href='/home'>
+                <span className='text-2xl font-bold text-gray-900 tracking-tight'>
+                  SupaMatch.ai
+                </span>
+              </Link>
+            ) : (
+              <Link href='/'>
+                <span className='text-2xl font-bold text-gray-900 tracking-tight'>
+                  SupaMatch.ai
+                </span>
+              </Link>
+            )}
           </div>
-
-          {/* ナビゲーションメニュー */}
-          <nav className='hidden md:flex items-center space-x-8'>
-            <Link href='/' className='text-gray-600 hover:text-gray-900 transition-colors'>
-              ホーム
-            </Link>
-            <Link href='/dashboard' className='text-gray-600 hover:text-gray-900 transition-colors'>
-              ダッシュボード
-            </Link>
-          </nav>
-
+          <div className='hidden md:flex space-x-10 flex-1 justify-center'>
+            {session ? (
+              <>
+                <Link
+                  href='/home'
+                  className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
+                >
+                  ホーム
+                </Link>
+                <Link
+                  href='/dashboard'
+                  className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
+                >
+                  ダッシュボード
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  href='#features'
+                  className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
+                >
+                  機能
+                </Link>
+                <Link
+                  href='#how-it-works'
+                  className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
+                >
+                  使い方
+                </Link>
+                <Link
+                  href='#benefits'
+                  className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
+                >
+                  メリット
+                </Link>
+                <Link
+                  href='#pricing'
+                  className='text-gray-600 hover:text-blue-600 transition-all duration-300 font-medium'
+                >
+                  料金
+                </Link>
+              </>
+            )}
+          </div>
           {/* ユーザーアイコン */}
-          <div className='flex items-center space-x-4'>
+          <div className='flex items-center space-x-4 flex-1 justify-end'>
             {session ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -82,12 +126,14 @@ export default function Header({ session }: HeaderProps) {
               </DropdownMenu>
             ) : (
               <Link href='/signin'>
-                <Button className='bg-blue-500 hover:bg-blue-600 text-white'>ログイン</Button>
+                <Button className='bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 shadow-lg shadow-blue-500/20 px-6 py-2 text-white font-bold'>
+                  今すぐ始める
+                </Button>
               </Link>
             )}
           </div>
         </div>
       </div>
-    </header>
+    </nav>
   )
 }
