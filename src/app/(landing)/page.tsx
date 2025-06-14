@@ -51,7 +51,7 @@ export default function Page() {
               <div className='w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg shadow-blue-500/20'>
                 <Users className='w-6 h-6 text-white font-bold' />
               </div>
-              <span className='text-2xl font-bold text-gray-900 tracking-tight'>SupaMatch</span>
+              <span className='text-2xl font-bold text-gray-900 tracking-tight'>SupaMatch.ai</span>
             </div>
             <div className='hidden md:flex space-x-10'>
               <a
@@ -97,7 +97,7 @@ export default function Page() {
             </div>
             <div className='relative'>
               <h1 className='text-5xl md:text-6xl lg:text-7xl font-black text-gray-900 mb-6 leading-tight tracking-tight'>
-                あなたを調べ上げて
+                あなたを全て調べて
                 <br />
                 <span className='bg-gradient-to-r from-blue-500 via-indigo-500 to-blue-600 bg-clip-text text-transparent'>
                   強力なエンジニア仲間
@@ -281,7 +281,7 @@ export default function Page() {
         <div className='max-w-7xl mx-auto'>
           <div className='text-center mb-16'>
             <h2 className='text-4xl md:text-5xl font-bold text-gray-900 mb-4'>
-              なぜSupaMatchなのか
+              なぜSupaMatch.aiなのか
             </h2>
             <p className='text-xl text-gray-600'>従来のマッチングサービスを超える価値</p>
           </div>
