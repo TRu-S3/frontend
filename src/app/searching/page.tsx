@@ -1,5 +1,5 @@
 import React from 'react'
-import { AnimatedProgress } from '@/components/ui/animated-progress'
+import { AnimatedProgress } from '@/app/searching/animated-progress'
 
 export default function Searching() {
   return (

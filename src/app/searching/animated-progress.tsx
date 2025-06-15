@@ -1,10 +1,10 @@
 "use client"
 
 import React, { useEffect, useState } from 'react'
-import { Progress } from './progress'
+import { Progress } from '../../components/ui/progress'
 import { motion, AnimatePresence } from 'framer-motion'
 import { useRouter } from 'next/navigation'
-import { Confetti } from './confetti'
+import { Confetti } from '../../components/ui/confetti'
 
 interface Phase {
   title: string
