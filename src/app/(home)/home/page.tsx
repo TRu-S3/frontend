@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { getSession } from '@/features/auth/config/auth'
+import HelloExample from '@/features/users/components/HelloExample'
 
 export default async function Home() {
   const session = await getSession()
@@ -9,7 +10,7 @@ export default async function Home() {
     <div className='flex flex-col items-center justify-center py-24 px-4'>
       <div className='max-w-4xl w-full text-center'>
         <h1 className='text-5xl font-bold text-gray-900 mb-6'>Welcome to MyApp</h1>
-
+        <HelloExample />
         {session ? (
           <div className='space-y-6'>
             <div className='bg-white rounded-lg shadow-md p-8'>
