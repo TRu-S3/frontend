@@ -43,19 +43,45 @@ function GoogleLogin() {
   const [isLoading, setIsLoading] = useState(false)
 
   const handleGoogleSignIn = async () => {
+    const startTime = performance.now()
+
     try {
       setIsLoading(true)
+      console.log('🚀 Googleログインプロセスを開始します...')
 
       // FirebaseでGoogleログインしてidTokenを取得
-      const { idToken } = await signInWithGoogle()
+      const tokenStartTime = performance.now()
+      const { user, idToken } = await signInWithGoogle()
+      const tokenEndTime = performance.now()
+      const tokenElapsedTime = Math.round(tokenEndTime - tokenStartTime)
+      console.log(
+        `🔑 FirebaseからのIDトークン取得が完了しました（所要時間: ${tokenElapsedTime}ms）`
+      )
+
+      // トークンをlocalStorageに保存
+      const result = await user.getIdTokenResult()
+      const expiry = new Date(result.expirationTime).getTime() / 1000
+
+      if (typeof window !== 'undefined') {
+        localStorage.setItem('firebase_id_token', idToken)
+        localStorage.setItem('firebase_token_expiry', expiry.toString())
+        console.log('💾 IDトークンをLocalStorageに保存しました')
+      }
 
       // NextAuthにidTokenを渡してセッション作成
+      console.log('🔄 NextAuthセッションの作成を開始します...')
       await signIn('credentials', {
         idToken,
         callbackUrl: '/home',
       })
+
+      const endTime = performance.now()
+      const totalElapsedTime = Math.round(endTime - startTime)
+      console.log(`✅ Googleログインプロセスが完了しました（総所要時間: ${totalElapsedTime}ms）`)
     } catch (error) {
-      console.error('ログインエラー:', error)
+      const endTime = performance.now()
+      const totalElapsedTime = Math.round(endTime - startTime)
+      console.error(`❌ ログインエラー（所要時間: ${totalElapsedTime}ms）:`, error)
     } finally {
       setIsLoading(false)
     }
