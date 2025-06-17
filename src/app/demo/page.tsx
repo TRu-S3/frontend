@@ -121,13 +121,13 @@ const surroundCardClass = "w-[15vw] min-w-[160px] max-w-[220px] h-auto aspect-sq
 export default function Demo() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-pink-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="relative w-full h-[700px] max-w-[1100px] mx-auto overflow-hidden">
+      <div className="relative w-full h-[900px] max-w-[1100px] mx-auto overflow-hidden">
         {/* 中央カード（手羽太郎） */}
         <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20">
           <ProfileCard
             {...mainProfile}
             isMain
-            containerClassName="w-[340px] max-w-[80vw] h-auto p-6"
+            containerClassName="w-[340px] max-w-[80vw] h-auto p-8 shadow-xl ring-2 ring-indigo-200 rounded-2xl bg-white/80 backdrop-blur-md transition-all duration-300"
           />
         </div>
         {/* 佐藤花子（上） */}
@@ -151,7 +151,7 @@ export default function Demo() {
           <ProfileCard {...otherProfiles[2]} containerClassName={surroundCardClass} />
         </div>
         {/* 中村美咲（右下） */}
-        <div className="absolute bottom-[4%] right-[4%] rotate-8 z-10">
+        <div className="absolute bottom-[0%] right-[44%] rotate-8 z-10">
           <ProfileCard {...otherProfiles[3]} containerClassName={surroundCardClass} />
         </div>
       </div>
