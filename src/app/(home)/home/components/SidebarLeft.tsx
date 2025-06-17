@@ -1,7 +1,7 @@
 'use client'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
-import { MoreHorizontal, Send } from 'lucide-react'
+import { Send } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import React, { useState, useEffect, useRef } from 'react'
 
@@ -151,17 +151,16 @@ export default function SidebarLeft() {
           </div>
 
           {/* ユーザー情報 */}
-          <div className='flex items-center justify-between p-3 bg-white/50 rounded-xl border border-gray-100'>
+          {/* <div className='flex items-center justify-between p-3 bg-white/50 rounded-xl border border-gray-100'>
             <div className='flex items-center gap-3'>
-              <Avatar className='w-8 h-8 ring-2 ring-blue-200'>
-                <AvatarFallback className='bg-gradient-to-br from-blue-400 to-purple-500 text-white font-semibold text-sm'>
-                  U
-                </AvatarFallback>
+              <Avatar className='w-8 h-8 '>
+                <AvatarImage src={session?.user?.image ?? ''} />
+                <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
               </Avatar>
-              <span className='text-sm font-medium text-gray-700'>ユーザー名</span>
+              <span className='text-sm font-medium text-gray-700'>{session?.user?.name}</span>
             </div>
             <MoreHorizontal className='w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors duration-200' />
-          </div>
+          </div> */}
         </div>
       </div>
     </aside>
