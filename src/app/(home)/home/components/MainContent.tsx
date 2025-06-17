@@ -6,7 +6,6 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Star, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
-import CalendarSection from './CalendarSection';
 
 const users = [
   {
