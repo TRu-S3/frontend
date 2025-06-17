@@ -2,9 +2,8 @@
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { MoreHorizontal, Send } from 'lucide-react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import React, { useState, useEffect, useRef } from 'react'
-import Image from 'next/image'
 
 export default function SidebarLeft() {
   const [input, setInput] = useState('')
@@ -72,7 +71,7 @@ export default function SidebarLeft() {
   }
 
   return (
-    <aside className='hidden lg:flex flex-col border-r bg-gradient-to-b from-slate-50 to-white h-[calc(100vh-56px)] max-h-[calc(100vh-56px)] min-w-[280px] w-full md:w-[340px] shadow-lg'>
+    <aside className='hidden lg:flex flex-col border-r bg-gradient-to-b from-slate-50 to-white h-[calc(100vh-56px)] max-h-[calc(100vh-56px)] min-w-[280px] w-full md:w-[340px]'>
       {/* ヘッダー */}
       <div className='p-6 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
         <h2 className='font-bold text-xl text-gray-800 tracking-tight'>AI チャット</h2>
@@ -117,7 +116,10 @@ export default function SidebarLeft() {
             ) : (
               <div key={idx} className='self-start flex items-start gap-3 max-w-[85%]'>
                 <div className='w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center shadow-md flex-shrink-0 mt-1'>
-                  <Image src='/AI.webp' alt='AI' className='w-6 h-6 rounded-full object-cover' />
+                  <Avatar>
+                    <AvatarImage src='/AI.webp' alt='AI' />
+                    <AvatarFallback>AI</AvatarFallback>
+                  </Avatar>
                 </div>
                 <div className='bg-white border border-gray-200 rounded-2xl rounded-bl-md px-4 py-3 text-sm shadow-md text-gray-800'>
                   {msg.text}
@@ -130,7 +132,7 @@ export default function SidebarLeft() {
 
         {/* 入力エリア */}
         <div className='space-y-3'>
-          <div className='flex items-center gap-3 bg-white rounded-2xl border-2 border-gray-200 p-2 shadow-lg hover:border-blue-300 transition-colors duration-200'>
+          <div className='flex items-center gap-3 bg-white rounded-2xl border-2 border-gray-200 p-2 hover:border-blue-300 transition-colors duration-200'>
             <Input
               placeholder='メッセージを入力してください...'
               className='flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none text-gray-700 placeholder:text-gray-400'
