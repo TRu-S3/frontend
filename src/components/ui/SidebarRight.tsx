@@ -1,19 +1,23 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Bell, Star, Plus } from 'lucide-react';
+import { Bell, Star, Plus, Mail } from 'lucide-react';
 
 export default function SidebarRight() {
   return (
     <aside className="hidden lg:flex flex-col border-l bg-white h-full">
       <div className="p-6 border-b">
-        <div className="flex items-center justify-between mb-4">
-          <span className="font-bold">通知</span>
-          <Bell className="w-5 h-5 text-gray-400" />
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="font-bold">ブックマーク</span>
+        <Button variant="outline" className="w-full flex items-center gap-2 mb-3 justify-center">
+          <Mail className="w-5 h-5" />
+          DM
+        </Button>
+        <Button variant="outline" className="w-full flex items-center gap-2 mb-2 justify-center">
+          <Bell className="w-5 h-5" />
+          通知
+        </Button>
+        <Button variant="outline" className="w-full flex items-center gap-2 justify-center">
           <Star className="w-5 h-5 text-yellow-400" />
-        </div>
+          ブックマーク
+        </Button>
       </div>
       <div className="p-6 border-b">
         <div className="flex items-center justify-between mb-2">

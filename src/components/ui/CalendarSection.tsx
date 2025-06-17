@@ -15,13 +15,23 @@ function addMonths(date: Date, months: number) {
 export default function CalendarSection() {
   // 中央の月を管理
   const [currentMonth, setCurrentMonth] = React.useState(new Date(2025, 6, 1)) // 7月スタート
+  const [calendarCount, setCalendarCount] = React.useState(3);
 
-  // 3ヶ月分のDateを生成
-  const months = [
-    addMonths(currentMonth, -1),
-    currentMonth,
-    addMonths(currentMonth, 1),
-  ]
+  React.useEffect(() => {
+    const updateCount = () => {
+      if (window.innerWidth < 600) setCalendarCount(1);
+      else if (window.innerWidth < 900) setCalendarCount(2);
+      else setCalendarCount(3);
+    };
+    updateCount();
+    window.addEventListener("resize", updateCount);
+    return () => window.removeEventListener("resize", updateCount);
+  }, []);
+
+  // 中央のカレンダーがcurrentMonthになるようにmonths配列を生成
+  const months = Array.from({ length: calendarCount }, (_, i) =>
+    addMonths(currentMonth, i - Math.floor(calendarCount / 2))
+  );
 
   // 各カレンダーの選択日を管理
   const [selected, setSelected] = React.useState<(Date | undefined)[]>([
@@ -31,12 +41,12 @@ export default function CalendarSection() {
   ])
 
   return (
-    <Card className="w-full bg-[#dddddd] p-8">
+    <Card className="w-full bg-[#dddddd] p-4 md:p-6 lg:p-8">
       <CardHeader>
         <div className="font-bold text-2xl mb-4">カレンダー</div>
       </CardHeader>
       <CardContent>
-        <div className="flex flex-row justify-center items-center gap-4 overflow-x-auto">
+        <div className="flex flex-row justify-center items-center gap-2 md:gap-4 lg:gap-6 overflow-x-auto">
           <Button
             size="icon"
             variant="ghost"
@@ -45,9 +55,9 @@ export default function CalendarSection() {
           >
             <ChevronLeft />
           </Button>
-          <div className="flex flex-row gap-8">
+          <div className="flex flex-row gap-2 md:gap-4 lg:gap-6">
             {months.map((date, i) => (
-              <div key={i} className="flex flex-col items-center min-w-[320px] p-4">
+              <div key={i} className="flex flex-col items-center min-w-[220px] md:min-w-[260px] lg:min-w-[300px] p-2 md:p-3 lg:p-4">
                 <Calendar
                   mode="single"
                   selected={selected[i]}
@@ -58,7 +68,7 @@ export default function CalendarSection() {
                   }}
                   defaultMonth={date}
                   month={date}
-                  className="rounded-md border shadow-sm bg-white p-4"
+                  className="rounded-md border shadow-sm bg-white p-2 md:p-3 lg:p-4"
                   showOutsideDays={true}
                   classNames={{
                     nav: "hidden",

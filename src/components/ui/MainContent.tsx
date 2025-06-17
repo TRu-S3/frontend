@@ -56,7 +56,6 @@ export default function MainContent() {
 
   return (
     <section className="flex flex-col items-center px-2 py-6 gap-6">
-      {/* タブ */}
       <Tabs defaultValue="similar" className="w-full max-w-2xl">
         <TabsList className="w-full flex">
           <TabsTrigger value="similar" className="flex-1">似ているユーザー</TabsTrigger>
@@ -65,6 +64,94 @@ export default function MainContent() {
         </TabsList>
         <TabsContent value="similar">
           {/* プロフィールカード */}
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <Button size="icon" variant="ghost" onClick={handlePrev}><ChevronLeft /></Button>
+            <Card>
+              <CardHeader className="flex flex-row items-center gap-4">
+                <Avatar className="w-16 h-16">
+                  <AvatarFallback>手</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <CardTitle>{user.name}</CardTitle>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Star className="w-5 h-5 text-yellow-400" />
+                    <MoreHorizontal className="w-5 h-5 text-gray-400" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4 text-gray-700">{user.intro}</p>
+                <div className="mb-4">
+                  <h3 className="font-semibold mb-1">主要スキル</h3>
+                  <ul className="list-disc list-inside text-sm text-gray-700">
+                    {user.skills.map((s, i) => <li key={i}>{s}</li>)} 
+                  </ul>
+                </div>
+                <div className="mb-4">
+                  <h3 className="font-semibold mb-1">過去のプロジェクト</h3>
+                  <div className="flex gap-4">
+                    {user.projects.map((p, i) => (
+                      <a key={i} href={p.url} className="text-blue-600 hover:underline">{p.label}</a>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 mt-4">
+                  <div className="font-bold mb-1">募集中のハッカソン</div>
+                  <div className="text-sm mb-1">{user.hackathon.title}</div>
+                  <div className="text-xs text-gray-500 mb-2">{user.hackathon.status}</div>
+                  <div className="text-xs text-gray-700">{user.hackathon.desc}</div>
+                </div>
+              </CardContent>
+            </Card>
+            <Button size="icon" variant="ghost" onClick={handleNext}><ChevronRight /></Button>
+          </div>
+        </TabsContent>
+        <TabsContent value="wanted">
+          {/* プロフィールカード（同じUI） */}
+          <div className="flex items-center justify-center gap-4 mt-6">
+            <Button size="icon" variant="ghost" onClick={handlePrev}><ChevronLeft /></Button>
+            <Card>
+              <CardHeader className="flex flex-row items-center gap-4">
+                <Avatar className="w-16 h-16">
+                  <AvatarFallback>手</AvatarFallback>
+                </Avatar>
+                <div className="flex-1">
+                  <CardTitle>{user.name}</CardTitle>
+                  <div className="flex items-center gap-2 mt-1">
+                    <Star className="w-5 h-5 text-yellow-400" />
+                    <MoreHorizontal className="w-5 h-5 text-gray-400" />
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="mb-4 text-gray-700">{user.intro}</p>
+                <div className="mb-4">
+                  <h3 className="font-semibold mb-1">主要スキル</h3>
+                  <ul className="list-disc list-inside text-sm text-gray-700">
+                    {user.skills.map((s, i) => <li key={i}>{s}</li>)} 
+                  </ul>
+                </div>
+                <div className="mb-4">
+                  <h3 className="font-semibold mb-1">過去のプロジェクト</h3>
+                  <div className="flex gap-4">
+                    {user.projects.map((p, i) => (
+                      <a key={i} href={p.url} className="text-blue-600 hover:underline">{p.label}</a>
+                    ))}
+                  </div>
+                </div>
+                <div className="bg-gray-50 rounded-lg p-4 mt-4">
+                  <div className="font-bold mb-1">募集中のハッカソン</div>
+                  <div className="text-sm mb-1">{user.hackathon.title}</div>
+                  <div className="text-xs text-gray-500 mb-2">{user.hackathon.status}</div>
+                  <div className="text-xs text-gray-700">{user.hackathon.desc}</div>
+                </div>
+              </CardContent>
+            </Card>
+            <Button size="icon" variant="ghost" onClick={handleNext}><ChevronRight /></Button>
+          </div>
+        </TabsContent>
+        <TabsContent value="generation">
+          {/* プロフィールカード（同じUI） */}
           <div className="flex items-center justify-center gap-4 mt-6">
             <Button size="icon" variant="ghost" onClick={handlePrev}><ChevronLeft /></Button>
             <Card>
