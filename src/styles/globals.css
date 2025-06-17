@@ -1,0 +1,4 @@
+/* shadcn/uiカレンダーの英語キャプションを強制的に非表示 */
+.rdp-caption {
+  display: none !important;
+} 
