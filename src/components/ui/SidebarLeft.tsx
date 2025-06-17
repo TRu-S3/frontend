@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { MoreHorizontal } from 'lucide-react';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import React, { useState } from 'react';
 
 export default function SidebarLeft() {
@@ -74,11 +75,16 @@ export default function SidebarLeft() {
             onKeyDown={handleInputKeyDown}
           />
           <Button size="icon" variant="ghost" onClick={handleSend}>
-            <svg width="20" height="20" fill="none" stroke="currentColor"><path d="M2 12l15-5-5 15-2-7-7-2z"/></svg>
+            <img src="/send.svg" alt="送信" width={20} height={20} />
           </Button>
         </div>
         <div className="flex items-center justify-between mt-2">
-          <span className="text-xs text-gray-500">ユーザー名</span>
+          <div className="flex items-center gap-2">
+            <Avatar className="w-7 h-7">
+              <AvatarFallback>U</AvatarFallback>
+            </Avatar>
+            <span className="text-xs text-gray-500 ml-2">ユーザー名</span>
+          </div>
           <MoreHorizontal className="w-5 h-5 text-gray-400" />
         </div>
       </div>
