@@ -1,48 +1,32 @@
-import Link from 'next/link'
-import { Button } from '@/components/ui/button'
-import { getSession } from '@/features/auth/config/auth'
-import HelloExample from '@/features/users/components/HelloExample'
+import { getServerSession } from "next-auth";
+import Header from '@/components/ui/header';
+import SidebarLeft from '../../../components/ui/SidebarLeft';
+import SidebarRight from '@/components/ui/SidebarRight';
+import MainContent from '@/components/ui/MainContent';
 
-export default async function Home() {
-  const session = await getSession()
-
+export default async function Page() {
+  const session = await getServerSession();
+  
   return (
-    <div className='flex flex-col items-center justify-center py-24 px-4'>
-      <div className='max-w-4xl w-full text-center'>
-        <h1 className='text-5xl font-bold text-gray-900 mb-6'>Welcome to MyApp</h1>
-        <HelloExample />
-        {session ? (
-          <div className='space-y-6'>
-            <div className='bg-white rounded-lg shadow-md p-8'>
-              <h2 className='text-2xl font-semibold mb-4'>
-                こんにちは、{session.user?.name}さん！
-              </h2>
-              <p className='text-gray-600 mb-6'>
-                ログイン済みです。ダッシュボードでアカウント情報を確認できます。
-              </p>
-              <div className='flex flex-col sm:flex-row gap-4 justify-center'>
-                <Link href='/dashboard'>
-                  <Button className='bg-blue-500 hover:bg-blue-600 text-white'>
-                    ダッシュボードへ
-                  </Button>
-                </Link>
-              </div>
-            </div>
-          </div>
-        ) : (
-          <div className='bg-white rounded-lg shadow-md p-8'>
-            <h2 className='text-2xl font-semibold mb-4'>始めましょう</h2>
-            <p className='text-gray-600 mb-6'>
-              アプリを使用するにはGoogleアカウントでログインしてください
-            </p>
-            <Link href='/signin'>
-              <Button className='bg-blue-500 hover:bg-blue-600 text-white text-lg px-8 py-3'>
-                Googleでログイン
-              </Button>
-            </Link>
-          </div>
-        )}
-      </div>
+    <div className="min-h-screen bg-white flex flex-col">
+      <Header session={session} />
+      <main
+        className="flex-1 flex flex-row bg-gray-50 min-h-0"
+        style={{ minHeight: 'calc(100vh - 56px)' }}
+      >
+        {/* サイドバー左：1/4 */}
+        <div className="w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0">
+          <SidebarLeft />
+        </div>
+        {/* メインコンテンツ：2/4 */}
+        <div className="w-2/4 min-w-[240px] flex-1 min-w-0">
+          <MainContent />
+        </div>
+        {/* サイドバー右：1/4 */}
+        <div className="w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0">
+          <SidebarRight />
+        </div>
+      </main>
     </div>
-  )
-}
+  );
+} 

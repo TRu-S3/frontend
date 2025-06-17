@@ -24,7 +24,7 @@ export default function SidebarRight() {
           <span className="font-bold">あなたへのおすすめ募集</span>
           <Plus className="w-5 h-5 text-gray-400" />
         </div>
-        <Card className="mb-2">
+          <Card className="mb-2">
           <CardContent className="p-4">
             <div className="font-bold mb-1">Zenn AI Agent Hackathon</div>
             <div className="text-xs text-gray-500 mb-1">ハッカソン、でませんか？ / 2/3名確定</div>
@@ -33,15 +33,20 @@ export default function SidebarRight() {
         </Card>
       </div>
       <div className="p-6">
-        <div className="font-bold mb-2">AIおすすめイベント？</div>
-        <div className="text-xs text-gray-500 mb-4">
-          ここにAIがあなたにおすすめするイベントの説明文が入ります。ワイヤーフレームの内容をそのまま記述。<br />
-          例：「このハッカソンでチームを探す」「詳細を見る」などのボタンも下に配置。
-        </div>
-        <div className="flex gap-2">
-          <Button size="sm" variant="outline">このハッカソンでチームを探す</Button>
-          <Button size="sm">詳細を見る</Button>
-        </div>
+        <Card>
+          <CardContent className="p-4">
+            <div className="font-bold mb-2">AIおすすめイベント</div>
+            <div className="text-xs text-gray-500 mb-4">
+              例：Zenn AI Agent Hackathon<br />
+              AIがあなたにおすすめするイベントの説明文がここに入ります。<br />
+              チームを探したり、詳細を確認したりできます。
+            </div>
+            <div className="flex flex-col gap-1 items-start">
+              <a href="#" className="text-xs text-blue-600 underline hover:text-blue-800">詳細を見る</a>
+              <Button size="sm" variant="outline">このハッカソンでチームを探す</Button>
+            </div>
+          </CardContent>
+        </Card>
       </div>
     </aside>
   );
