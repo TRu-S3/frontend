@@ -196,7 +196,7 @@ export default function MainContent() {
         </TabsContent>
       </Tabs>
       {/* カレンダー */}
-      <CalendarSection />
+      {/* <CalendarSection /> */}
     </section>
   );
 } 
