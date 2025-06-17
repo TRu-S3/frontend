@@ -1,8 +1,8 @@
 import { getServerSession } from "next-auth";
 import Header from '@/components/ui/header';
-import SidebarLeft from '../../../components/ui/SidebarLeft';
-import SidebarRight from '@/components/ui/SidebarRight';
-import MainContent from '@/components/ui/MainContent';
+import SidebarRight from './components/SidebarRight';
+import MainContent from './components/MainContent';
+import SidebarLeft from "./components/SidebarLeft";
 
 export default async function Page() {
   const session = await getServerSession();
