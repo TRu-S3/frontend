@@ -1,93 +1,167 @@
-'use client';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { MoreHorizontal } from 'lucide-react';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import React, { useState } from 'react';
+'use client'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { MoreHorizontal, Send } from 'lucide-react'
+import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import React, { useState, useEffect, useRef } from 'react'
+import Image from 'next/image'
 
 export default function SidebarLeft() {
-  const [input, setInput] = useState('');
-  const [messages, setMessages] = useState<{ text: string; sender: 'user' | 'bot' }[]>([]);
+  const [input, setInput] = useState('')
+  const [messages, setMessages] = useState<{ text: string; sender: 'user' | 'bot' }[]>([])
+  const messagesEndRef = useRef<HTMLDivElement>(null)
+  const messagesContainerRef = useRef<HTMLDivElement>(null)
+
+  // メッセージが更新されたときに自動スクロール
+  useEffect(() => {
+    const scrollToBottom = () => {
+      if (messagesContainerRef.current) {
+        messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight
+      }
+    }
+
+    // 少し遅延を入れて確実にスクロール
+    const timer = setTimeout(scrollToBottom, 100)
+    return () => clearTimeout(timer)
+  }, [messages])
 
   const handleSend = () => {
-    if (!input.trim()) return;
-    const userMsg = { text: input, sender: 'user' as const };
-    setMessages(prev => [...prev, userMsg]);
-    setInput('');
+    if (!input.trim()) return
+    const userMsg = { text: input, sender: 'user' as const }
+    setMessages((prev) => [...prev, userMsg])
+    setInput('')
     // Botのダミー返答を追加
     setTimeout(() => {
-      setMessages(prev => [...prev, { text: 'こんにちは！私はAIです。', sender: 'bot' as const }]);
-    }, 500);
-  };
+      setMessages((prev) => [
+        ...prev,
+        { text: 'こんにちは！私はAIです。どのようにお手伝いできますか？', sender: 'bot' as const },
+      ])
+    }, 500)
+  }
 
   const handleProfileButton = () => {
-    const userMsg = { text: 'プロフィールを充実させる', sender: 'user' as const };
-    setMessages(prev => [...prev, userMsg]);
+    const userMsg = { text: 'プロフィールを充実させる', sender: 'user' as const }
+    setMessages((prev) => [...prev, userMsg])
     setTimeout(() => {
-      setMessages(prev => [...prev, { text: 'プロフィールを充実させる方法についてご案内します！', sender: 'bot' as const }]);
-    }, 500);
-  };
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: 'プロフィールを充実させる方法についてご案内します！まずは基本情報から始めましょう。',
+          sender: 'bot' as const,
+        },
+      ])
+    }, 500)
+  }
 
   const handleHowToButton = () => {
-    const userMsg = { text: 'このプロダクトの使い方は？', sender: 'user' as const };
-    setMessages(prev => [...prev, userMsg]);
+    const userMsg = { text: 'このプロダクトの使い方は？', sender: 'user' as const }
+    setMessages((prev) => [...prev, userMsg])
     setTimeout(() => {
-      setMessages(prev => [...prev, { text: 'このプロダクトの使い方についてご説明します！', sender: 'bot' as const }]);
-    }, 500);
-  };
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: 'このプロダクトの使い方についてご説明します！ステップバイステップでサポートいたします。',
+          sender: 'bot' as const,
+        },
+      ])
+    }, 500)
+  }
 
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') handleSend();
-  };
+    if (e.key === 'Enter') handleSend()
+  }
 
   return (
-    <aside className="hidden lg:flex flex-col border-r bg-white h-[calc(100vh-56px)] max-h-[calc(100vh-56px)] min-w-[280px] w-full md:w-[340px]">
-      <div className="p-6 border-b">
-        <h2 className="font-bold text-lg mb-2">あなたが求めている人はどのような人でしょう？</h2>
-        <p className="mb-4 text-sm font-semibold">XX人のエンジニアを探しています！</p>
-        <Button className="w-full mb-2" onClick={handleProfileButton}>プロフィールを充実させる</Button>
-        <Button variant="outline" className="w-full" onClick={handleHowToButton}>このプロダクトの使い方は？</Button>
+    <aside className='hidden lg:flex flex-col border-r bg-gradient-to-b from-slate-50 to-white h-[calc(100vh-56px)] max-h-[calc(100vh-56px)] min-w-[280px] w-full md:w-[340px] shadow-lg'>
+      {/* ヘッダー */}
+      <div className='p-6 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
+        <h2 className='font-bold text-xl text-gray-800 tracking-tight'>AI チャット</h2>
+        <p className='text-sm text-gray-500 mt-1'>何でもお気軽にお聞きください</p>
       </div>
-      <div className="flex-1 flex flex-col justify-end p-4 gap-2 overflow-y-auto max-h-[calc(100vh-220px)]">
-        <div className="flex flex-col gap-2 mb-2 overflow-y-auto max-h-[40vh] md:max-h-[50vh]">
+
+      {/* メインコンテンツ */}
+      <div className='flex-1 flex flex-col justify-end p-4 gap-4 overflow-hidden'>
+        {/* クイックアクションボタン */}
+        <div className='space-y-3'>
+          <Button
+            className='w-full h-12 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white shadow-md hover:shadow-lg transition-all duration-200 rounded-xl font-medium'
+            onClick={handleProfileButton}
+          >
+            ✨ プロフィールを充実させる
+          </Button>
+          <Button
+            variant='outline'
+            className='w-full h-12 border-2 border-gray-200 hover:border-blue-300 hover:bg-blue-50 transition-all duration-200 rounded-xl font-medium text-gray-700'
+            onClick={handleHowToButton}
+          >
+            📚 このプロダクトの使い方は？
+          </Button>
+        </div>
+
+        {/* メッセージエリア */}
+        <div
+          ref={messagesContainerRef}
+          className='flex flex-col gap-3 overflow-y-auto max-h-[45vh] md:max-h-[50vh] pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'
+          style={{
+            scrollBehavior: 'smooth',
+          }}
+        >
           {messages.map((msg, idx) =>
             msg.sender === 'user' ? (
-              <div key={idx} className="self-end bg-blue-100 rounded-xl px-3 py-2 max-w-[80vw] md:max-w-[70%] text-sm break-words">
+              <div
+                key={idx}
+                className='self-end bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-2xl rounded-br-md px-4 py-3 max-w-[80%] text-sm shadow-md'
+              >
                 {msg.text}
               </div>
             ) : (
-              <div key={idx} className="self-start flex items-start gap-2 max-w-[85vw] md:max-w-[80%]">
-                <img src="/AI.webp" alt="AI" className="w-7 h-7 rounded-full object-cover mt-1" />
-                <div className="bg-gray-100 rounded-xl px-3 py-2 text-sm break-words">
+              <div key={idx} className='self-start flex items-start gap-3 max-w-[85%]'>
+                <div className='w-8 h-8 rounded-full bg-gradient-to-br from-purple-400 to-blue-500 flex items-center justify-center shadow-md flex-shrink-0 mt-1'>
+                  <Image src='/AI.webp' alt='AI' className='w-6 h-6 rounded-full object-cover' />
+                </div>
+                <div className='bg-white border border-gray-200 rounded-2xl rounded-bl-md px-4 py-3 text-sm shadow-md text-gray-800'>
                   {msg.text}
                 </div>
               </div>
             )
           )}
+          <div ref={messagesEndRef} />
         </div>
-        <div className="flex items-center gap-2 w-full">
-          <Input
-            placeholder="メッセージを入力"
-            className="flex-1 min-w-0"
-            value={input}
-            onChange={e => setInput(e.target.value)}
-            onKeyDown={handleInputKeyDown}
-          />
-          <Button size="icon" variant="ghost" onClick={handleSend}>
-            <img src="/send.svg" alt="送信" width={20} height={20} />
-          </Button>
-        </div>
-        <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center gap-2">
-            <Avatar className="w-7 h-7">
-              <AvatarFallback>U</AvatarFallback>
-            </Avatar>
-            <span className="text-xs text-gray-500 ml-2">ユーザー名</span>
+
+        {/* 入力エリア */}
+        <div className='space-y-3'>
+          <div className='flex items-center gap-3 bg-white rounded-2xl border-2 border-gray-200 p-2 shadow-lg hover:border-blue-300 transition-colors duration-200'>
+            <Input
+              placeholder='メッセージを入力してください...'
+              className='flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none text-gray-700 placeholder:text-gray-400'
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={handleInputKeyDown}
+            />
+            <Button
+              size='icon'
+              className='w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-200'
+              onClick={handleSend}
+              disabled={!input.trim()}
+            >
+              <Send className='w-4 h-4 text-white' />
+            </Button>
           </div>
-          <MoreHorizontal className="w-5 h-5 text-gray-400" />
+
+          {/* ユーザー情報 */}
+          <div className='flex items-center justify-between p-3 bg-white/50 rounded-xl border border-gray-100'>
+            <div className='flex items-center gap-3'>
+              <Avatar className='w-8 h-8 ring-2 ring-blue-200'>
+                <AvatarFallback className='bg-gradient-to-br from-blue-400 to-purple-500 text-white font-semibold text-sm'>
+                  U
+                </AvatarFallback>
+              </Avatar>
+              <span className='text-sm font-medium text-gray-700'>ユーザー名</span>
+            </div>
+            <MoreHorizontal className='w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors duration-200' />
+          </div>
         </div>
       </div>
     </aside>
-  );
-} 
+  )
+}

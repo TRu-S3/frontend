@@ -1,32 +1,27 @@
-import { getServerSession } from "next-auth";
-import Header from '@/components/ui/header';
-import SidebarRight from './components/SidebarRight';
-import MainContent from './components/MainContent';
-import SidebarLeft from "./components/SidebarLeft";
+import SidebarRight from './components/SidebarRight'
+import MainContent from './components/MainContent'
+import SidebarLeft from './components/SidebarLeft'
 
 export default async function Page() {
-  const session = await getServerSession();
-  
   return (
-    <div className="min-h-screen bg-white flex flex-col">
-      <Header session={session} />
+    <div className='min-h-screen bg-white flex flex-col'>
       <main
-        className="flex-1 flex flex-row bg-gray-50 min-h-0"
+        className='flex-1 flex flex-row bg-gray-50 min-h-0'
         style={{ minHeight: 'calc(100vh - 56px)' }}
       >
         {/* サイドバー左：1/4 */}
-        <div className="w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0">
+        <div className='w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0'>
           <SidebarLeft />
         </div>
         {/* メインコンテンツ：2/4 */}
-        <div className="w-2/4 min-w-[240px] flex-1 min-w-0">
+        <div className='w-2/4 min-w-[240px] flex-1'>
           <MainContent />
         </div>
         {/* サイドバー右：1/4 */}
-        <div className="w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0">
+        <div className='w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0'>
           <SidebarRight />
         </div>
       </main>
     </div>
-  );
-} 
+  )
+}
