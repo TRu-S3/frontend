@@ -1,10 +1,10 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { MoreHorizontal } from 'lucide-react';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import React, { useState } from 'react';
+import Image from 'next/image';
 
 export default function SidebarLeft() {
   const [input, setInput] = useState('');
@@ -58,7 +58,7 @@ export default function SidebarLeft() {
               </div>
             ) : (
               <div key={idx} className="self-start flex items-start gap-2 max-w-[85vw] md:max-w-[80%]">
-                <img src="/AI.webp" alt="AI" className="w-7 h-7 rounded-full object-cover mt-1" />
+                <Image src="/AI.webp" alt="AI" width={28} height={28} className="w-7 h-7 rounded-full object-cover mt-1" />
                 <div className="bg-gray-100 rounded-xl px-3 py-2 text-sm break-words">
                   {msg.text}
                 </div>
@@ -75,7 +75,7 @@ export default function SidebarLeft() {
             onKeyDown={handleInputKeyDown}
           />
           <Button size="icon" variant="ghost" onClick={handleSend}>
-            <img src="/send.svg" alt="送信" width={20} height={20} />
+            <Image src="/send.svg" alt="送信" width={20} height={20} />
           </Button>
         </div>
         <div className="flex items-center justify-between mt-2">
