@@ -21,18 +21,11 @@ export default function Popup({ trigger, title = 'モーダル', children }: Pop
       <DialogTrigger asChild>
         <div>{trigger}</div>
       </DialogTrigger>
-      <DialogContent className='fixed top-1/2 left-1/2 z-[60] sm:max-w-[400px] w-full max-w-[calc(100%-2rem)] p-6 bg-white rounded-xl shadow-lg border border-gray-200 -translate-x-1/2 -translate-y-1/2'>
+      <DialogContent className='fixed top-1/2 left-1/2 z-[60] p-4 px-9 bg-white rounded-xl shadow-lg border border-gray-200 -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto w-auto min-w-[200px] max-w-[90vw]'>
         <VisuallyHidden.Root>
           <DialogTitle>{title}</DialogTitle>
         </VisuallyHidden.Root>
-        <DialogClose asChild>
-          <button
-            className='absolute right-4 top-4 text-gray-400 hover:text-gray-600 transition'
-            aria-label='閉じる'
-          >
-            <X className='w-5 h-5' />
-          </button>
-        </DialogClose>
+        <DialogClose asChild />
         <div className='mt-4'>{children}</div>
       </DialogContent>
     </Dialog>

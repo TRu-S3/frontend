@@ -14,7 +14,7 @@ export default function LoginPopup({ trigger }: LoginPopupProps) {
 
   return (
     <Popup trigger={trigger}>
-      <div className='w-full min-h-[320px] flex items-center justify-center'>
+      <div className='w-full max-h-[400px] overflow-auto flex items-center justify-center py-4'>
         <Login session={session} />
       </div>
     </Popup>
