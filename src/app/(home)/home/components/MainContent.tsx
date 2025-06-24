@@ -1,12 +1,11 @@
 'use client'
 
-import { useState } from 'react'
-import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Star, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react'
-import CalendarSection from './CalendarSection'
+import { useState } from "react";
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { Button } from '@/components/ui/button';
+import { Star, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
 
 const users = [
   {
@@ -227,7 +226,7 @@ export default function MainContent() {
         </TabsContent>
       </Tabs>
       {/* カレンダー */}
-      <CalendarSection />
+      {/* <CalendarSection /> */}
     </section>
   )
 }
