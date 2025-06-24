@@ -40,13 +40,13 @@ const LargeProfileCard = ({ name, bio, skills, projects, github }: ProfileData) 
   return (
     <div className='bg-white rounded-xl shadow-lg p-8 max-w-2xl mx-auto'>
       <div className='flex items-start gap-6 mb-8'>
-        <div className='flex-shrink-0'>
+        <div className='flex items-center gap-4 flex-shrink-0'>
           <Avatar className='w-24 h-24 border-4 border-white shadow-lg'>
             <AvatarFallback className='text-2xl'>{initial}</AvatarFallback>
           </Avatar>
+          <span className='text-2xl font-bold'>{name}</span>
         </div>
         <div className='flex-1 min-w-0'>
-          <h2 className='text-2xl font-bold mb-3'>{name}</h2>
           <p className='text-gray-600 mb-4'>{bio}</p>
           <div className='flex flex-wrap gap-3'>
             {skills.strongRoles.map((role, index) => (
@@ -203,23 +203,21 @@ const SmallProfileCard = ({ name, bio, skills, projects, github }: ProfileData) 
   }, [])
 
   return (
-    <div className='bg-white rounded-xl shadow p-3 min-w-[180px] max-w-[240px] flex flex-col items-center text-xs h-full'>
-      <div className='flex flex-col items-center gap-2 mb-2 w-full'>
-        <div>
-          <Avatar className='w-12 h-12 border-2 border-white shadow'>
-            <AvatarFallback className='text-base'>{initial}</AvatarFallback>
-          </Avatar>
-        </div>
-        <div className='w-full flex flex-col items-center'>
-          <h2 className='text-base font-bold mb-1 text-center truncate w-full'>{name}</h2>
-          <p className='text-gray-500 text-xs mb-1 text-center line-clamp-1 w-full'>{bio}</p>
-          <div className='flex flex-wrap gap-1 justify-center'>
-            {skills.strongRoles.map((role, index) => (
-              <Tag key={index} variant='secondary' className='px-2 py-0.5 text-[10px]'>
-                {role}
-              </Tag>
-            ))}
-          </div>
+    <div className='bg-white rounded-xl shadow p-3 min-w-[180px] max-w-[240px] flex flex-col items-start text-xs h-full'>
+      <div className='flex items-center gap-3 mb-2 w-full'>
+        <Avatar className='w-12 h-12 border-2 border-white shadow'>
+          <AvatarFallback className='text-base'>{initial}</AvatarFallback>
+        </Avatar>
+        <span className='text-base font-bold truncate'>{name}</span>
+      </div>
+      <div className='w-full flex flex-col items-start'>
+        <p className='text-gray-500 text-xs mb-1 line-clamp-1 w-full'>{bio}</p>
+        <div className='flex flex-wrap gap-1'>
+          {skills.strongRoles.map((role, index) => (
+            <Tag key={index} variant='secondary' className='px-2 py-0.5 text-[10px]'>
+              {role}
+            </Tag>
+          ))}
         </div>
       </div>
 
