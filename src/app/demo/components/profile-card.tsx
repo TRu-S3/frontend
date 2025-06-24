@@ -1,6 +1,6 @@
 'use client'
 
-import React, { useRef, useState, useLayoutEffect } from 'react'
+import React, { useRef, useLayoutEffect } from 'react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Tag } from '@/components/ui/tag'
@@ -36,7 +36,6 @@ interface ProfileCardProps extends ProfileData {
 
 const LargeProfileCard = ({ name, bio, skills, projects, github }: ProfileData) => {
   const initial = name.charAt(0)
-  const { data: session } = useSession()
   return (
     <div className='bg-white rounded-xl shadow-2xl p-10 max-w-2xl mx-auto'>
       <div className='flex items-start gap-6 mb-8'>
@@ -187,14 +186,12 @@ const LargeProfileCard = ({ name, bio, skills, projects, github }: ProfileData) 
 const SmallProfileCard = ({ name, bio, skills, projects, github }: ProfileData) => {
   const initial = name.charAt(0)
   const contentWrapperRef = useRef<HTMLDivElement>(null)
-  const [isOverflowing, setIsOverflowing] = useState(false)
   const { data: session } = useSession()
 
   useLayoutEffect(() => {
     const checkOverflow = () => {
       if (contentWrapperRef.current) {
-        const { scrollHeight, clientHeight } = contentWrapperRef.current
-        setIsOverflowing(scrollHeight > clientHeight)
+        // 何もせず
       }
     }
     checkOverflow()

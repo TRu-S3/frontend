@@ -7,7 +7,6 @@ import {
 } from '@/components/ui/dialog'
 import * as VisuallyHidden from '@radix-ui/react-visually-hidden'
 import React from 'react'
-import { X } from 'lucide-react'
 
 interface PopupProps {
   trigger: React.ReactNode
