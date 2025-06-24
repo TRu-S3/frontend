@@ -38,7 +38,7 @@ const LargeProfileCard = ({ name, bio, skills, projects, github }: ProfileData) 
   const initial = name.charAt(0)
   const { data: session } = useSession()
   return (
-    <div className='bg-white rounded-xl shadow-lg p-10 max-w-2xl mx-auto'>
+    <div className='bg-white rounded-xl shadow-2xl p-10 max-w-2xl mx-auto'>
       <div className='flex items-start gap-6 mb-8'>
         <div className='flex items-center gap-4 flex-shrink-0'>
           <Avatar className='w-24 h-24 border-4 border-white shadow-lg'>
@@ -203,7 +203,7 @@ const SmallProfileCard = ({ name, bio, skills, projects, github }: ProfileData) 
   }, [])
 
   return (
-    <div className='bg-white rounded-xl shadow p-5 min-w-[180px] max-w-[240px] flex flex-col items-start text-xs h-full'>
+    <div className='bg-white rounded-xl shadow-xl p-5 min-w-[180px] max-w-[240px] flex flex-col items-start text-xs h-full'>
       <div className='flex items-center gap-3 mb-2 w-full'>
         <Avatar className='w-12 h-12 border-2 border-white shadow'>
           <AvatarFallback className='text-base'>{initial}</AvatarFallback>
