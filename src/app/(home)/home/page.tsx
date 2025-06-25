@@ -1,8 +1,17 @@
 import SidebarRight from './components/SidebarRight'
 import MainContent from './components/MainContent'
 import SidebarLeft from './components/SidebarLeft'
+import { getServerSession } from 'next-auth'
+import { authOptions } from '@/features/auth/config/authOptions'
+import { redirect } from 'next/navigation'
 
-export default function Page() {
+export default async function Page() {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect('/')
+  }
+
   return (
     <div className='min-h-screen bg-white flex flex-col'>
       <main
