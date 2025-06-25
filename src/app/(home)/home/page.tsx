@@ -3,6 +3,12 @@ import MainContent from './components/MainContent'
 import SidebarLeft from './components/SidebarLeft'
 
 export default function Page() {
+  const session = await getServerSession(authOptions)
+
+  if (!session) {
+    redirect('/')
+  }
+
   return (
     <div className='min-h-screen bg-white flex flex-col'>
       <main
