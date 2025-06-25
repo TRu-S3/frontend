@@ -12,11 +12,19 @@ interface PopupProps {
   trigger: React.ReactNode
   title?: string
   children: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export default function Popup({ trigger, title = 'モーダル', children }: PopupProps) {
+export default function Popup({
+  trigger,
+  title = 'モーダル',
+  children,
+  open,
+  onOpenChange,
+}: PopupProps) {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <div>{trigger}</div>
       </DialogTrigger>
