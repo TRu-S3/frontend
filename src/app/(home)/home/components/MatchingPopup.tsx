@@ -145,7 +145,12 @@ export default function MatchingPopup({ trigger }: MatchingPopupProps) {
         {/* 募集人数（枠で囲み、1行横並び、ラベル14px、自由追加） */}
         <div className='bg-gray-50 border border-gray-200 rounded-lg p-4 mb-2'>
           <div className='flex items-center justify-between mb-2'>
-            <div className='font-bold text-base'>募集人数</div>
+            <div className='flex items-center gap-2'>
+              <div className='font-bold text-base'>募集人数</div>
+              <span className='text-sm font-semibold text-blue-600'>
+                合計: {Object.values(positions).reduce((sum, count) => sum + count, 0)}人
+              </span>
+            </div>
             <Button
               type='button'
               size='icon'
