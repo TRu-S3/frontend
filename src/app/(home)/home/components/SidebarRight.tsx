@@ -3,6 +3,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Bell, Star, Plus, Mail, Users } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Image from 'next/image'
+import MatchingPopup from './MatchingPopup'
 
 export default function SidebarRight() {
   return (
@@ -24,7 +25,7 @@ export default function SidebarRight() {
       <div className='p-6 border-b'>
         <div className='flex items-center justify-between mb-3'>
           <span className='font-bold'>あなたへのおすすめ募集</span>
-          <Plus className='w-5 h-5 text-gray-400' />
+          <MatchingPopup trigger={<Plus className='w-5 h-5 text-gray-400 cursor-pointer' />} />
         </div>
 
         {/* ハッカソン情報 */}
