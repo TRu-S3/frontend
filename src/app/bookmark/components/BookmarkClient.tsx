@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Heart, User, BookmarkX, Loader2 } from 'lucide-react'
+import { Star, User, BookmarkX, Loader2 } from 'lucide-react'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { useBookmarks } from '@/hooks/useBookmarks'
 
@@ -86,7 +86,7 @@ export const BookmarkClient = () => {
         <div className='max-w-4xl mx-auto px-6 py-4'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
-              <Heart className='w-6 h-6 text-red-500 fill-current' />
+              <Star className='w-6 h-6 text-yellow-500 fill-current' />
               <h1 className='text-2xl font-bold text-gray-900'>ブックマーク</h1>
               <span className='bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-medium'>
                 {bookmarkedUsers.length}人
@@ -114,7 +114,7 @@ export const BookmarkClient = () => {
       <div className='max-w-4xl mx-auto px-6 py-8'>
         {bookmarkedUsers.length === 0 ? (
           <div className='text-center py-16'>
-            <Heart className='w-16 h-16 text-gray-300 mx-auto mb-4' />
+            <Star className='w-16 h-16 text-gray-300 mx-auto mb-4' />
             <h2 className='text-xl font-semibold text-gray-600 mb-2'>
               ブックマークしたユーザーがいません
             </h2>

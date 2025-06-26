@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { Button } from '@/components/ui/button'
-import { Heart, Loader2 } from 'lucide-react'
+import { Star, Loader2 } from 'lucide-react'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import { useBookmarks } from '@/hooks/useBookmarks'
 
@@ -54,14 +54,14 @@ export const BookmarkButton = ({
       onClick={handleToggle}
       disabled={loading}
       className={`${bookmarked 
-        ? 'text-red-500 hover:text-red-600 border-red-200 hover:border-red-300' 
-        : 'text-gray-500 hover:text-red-500 hover:border-red-200'
+        ? 'text-yellow-500 hover:text-yellow-600 border-yellow-200 hover:border-yellow-300' 
+        : 'text-gray-500 hover:text-yellow-500 hover:border-yellow-200'
       } ${className}`}
     >
       {loading ? (
         <Loader2 className='w-4 h-4 animate-spin' />
       ) : (
-        <Heart className={`w-4 h-4 ${bookmarked ? 'fill-current' : ''}`} />
+        <Star className={`w-4 h-4 ${bookmarked ? 'fill-current' : ''}`} />
       )}
       {size !== 'sm' && (
         <span className='ml-2'>
