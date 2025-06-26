@@ -1,11 +1,25 @@
+'use client'
+
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Bell, Star, Plus, Mail, Users } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import Image from 'next/image'
 import MatchingPopup from './MatchingPopup'
+import React, { useState } from 'react'
 
 export default function SidebarRight() {
+  const [popupOpen, setPopupOpen] = useState(false)
+  const [selectedHackathon, setSelectedHackathon] = useState<string | undefined>(undefined)
+
+  const recommendedHackathons = [
+    {
+      name: 'Zenn AI Agent Hackathon',
+      url: 'https://static.zenn.studio/permanent/hackathon/google-cloud-japan-ai-hackathon-vol2/header_v2.png',
+    },
+    // 今後ここに追加可能
+  ]
+
   return (
     <aside className='hidden lg:flex flex-col border-l bg-gradient-to-b from-white/80 to-slate-50/80 backdrop-blur-sm h-full border-white/30'>
       <div className='p-6 border-b flex flex-col gap-3'>
@@ -25,7 +39,16 @@ export default function SidebarRight() {
       <div className='p-6 border-b'>
         <div className='flex items-center justify-between mb-3'>
           <span className='font-bold'>あなたへのおすすめ募集</span>
-          <MatchingPopup trigger={<Plus className='w-5 h-5 text-gray-400 cursor-pointer' />} />
+          <Button
+            variant='ghost'
+            size='icon'
+            onClick={() => {
+              setSelectedHackathon(undefined)
+              setPopupOpen(true)
+            }}
+          >
+            <Plus className='w-5 h-5 text-gray-400' />
+          </Button>
         </div>
 
         {/* ハッカソン情報 */}
@@ -122,6 +145,13 @@ export default function SidebarRight() {
                 size='sm'
                 variant='outline'
                 className='w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200'
+                onClick={() => {
+                  setPopupOpen(false)
+                  setTimeout(() => {
+                    setSelectedHackathon('Zenn AI Agent Hackathon')
+                    setPopupOpen(true)
+                  }, 0)
+                }}
               >
                 このハッカソンでチームを探す
               </Button>
@@ -129,6 +159,13 @@ export default function SidebarRight() {
           </CardContent>
         </Card>
       </div>
+      <MatchingPopup
+        trigger={<></>}
+        open={popupOpen}
+        onOpenChange={setPopupOpen}
+        initialHackathonName={selectedHackathon}
+        recommendedHackathons={recommendedHackathons}
+      />
     </aside>
   )
 }
