@@ -2,60 +2,76 @@
 
 import { useState } from "react";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
-import { Star, MoreHorizontal, ChevronLeft, ChevronRight } from 'lucide-react';
-
-const users = [
-  {
-    name: '手羽太郎',
-    skills: [
-      'ハッカソン出場回数: 5回',
-      '得意な役割: フロントエンド開発, UI/UXデザイン',
-      '挑戦したい役割: バックエンド開発, インフラ構築',
-    ],
-    intro:
-      'こんにちは！私は手羽太郎です！ハッカソンに一緒に出てくれる仲間を探しています！ぜひ、ZennのAIエージェントハッカソンに一緒に出ましょう！優勝目指すぞ！',
-    projects: [
-      { label: '技術ブログ', url: '#' },
-      { label: 'GitHub', url: '#' },
-    ],
-    hackathon: {
-      title: 'Zenn AI Agent Hackathon',
-      status: 'ハッカソン、でませんか？ / 2/3名確定',
-      desc: 'この人は、マネージメント経験があります。新しい技術に対して意欲的であなたと性格的にマッチすると思います',
-    },
-  },
-  {
-    name: 'サンプル太郎',
-    skills: [
-      'ハッカソン出場回数: 2回',
-      '得意な役割: バックエンド開発',
-      '挑戦したい役割: フロントエンド開発',
-    ],
-    intro: 'こんにちは！私はサンプル太郎です！新しい仲間を探しています！',
-    projects: [
-      { label: 'Qiita', url: '#' },
-      { label: 'Portfolio', url: '#' },
-    ],
-    hackathon: {
-      title: 'Sample Hackathon',
-      status: '一緒に参加しませんか？ / 1/3名確定',
-      desc: 'バックエンドが得意です。新しいことに挑戦したいです。',
-    },
-  },
-]
+import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { useUsers } from '@/hooks/useUsers';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
+import UserCard from '@/components/user/UserCard';
+import ApiTest from '@/components/debug/api-test';
 
 export default function MainContent() {
-  const [currentUser, setCurrentUser] = useState(0)
-  const user = users[currentUser]
+  const { user: currentUser, loading: currentUserLoading } = useCurrentUser()
+  const { users, loading: usersLoading, error } = useUsers({ autoFetch: true, filters: { limit: 20 } })
+  const [currentIndex, setCurrentIndex] = useState(0)
+  
+  console.log('🎯 MainContent: currentUserLoading =', currentUserLoading, 'usersLoading =', usersLoading, 'users.length =', users.length)
+  
+  const loading = currentUserLoading || usersLoading
+  
+  // 自分以外のユーザーをフィルタリング
+  const otherUsers = users.filter(user => user.id !== currentUser?.id)
+  const currentDisplayUser = otherUsers[currentIndex]
 
-  const handlePrev = () => setCurrentUser((prev) => (prev - 1 + users.length) % users.length)
-  const handleNext = () => setCurrentUser((prev) => (prev + 1) % users.length)
+  const handlePrev = () => setCurrentIndex((prev) => (prev - 1 + otherUsers.length) % otherUsers.length)
+  const handleNext = () => setCurrentIndex((prev) => (prev + 1) % otherUsers.length)
+
+  // ローディング状態
+  if (loading) {
+    return (
+      <section className='flex flex-col items-center px-2 py-6 gap-6'>
+        <div className='flex items-center gap-2'>
+          <Loader2 className='w-6 h-6 animate-spin' />
+          <span>ユーザーを読み込み中...</span>
+        </div>
+      </section>
+    )
+  }
+
+  // エラー状態
+  if (error) {
+    return (
+      <section className='flex flex-col items-center px-2 py-6 gap-6'>
+        <div className='text-center'>
+          <div className='text-red-500 mb-2'>{error}</div>
+          <Button onClick={() => window.location.reload()}>
+            再読み込み
+          </Button>
+        </div>
+      </section>
+    )
+  }
+
+  // ユーザーがいない場合
+  if (otherUsers.length === 0) {
+    return (
+      <section className='flex flex-col items-center px-2 py-6 gap-6'>
+        <div className='text-center py-16'>
+          <h2 className='text-xl font-semibold text-gray-600 mb-2'>
+            表示するユーザーがいません
+          </h2>
+          <p className='text-gray-500'>
+            他のユーザーが登録されると、ここに表示されます。
+          </p>
+        </div>
+      </section>
+    )
+  }
 
   return (
     <section className='flex flex-col items-center px-2 py-6 gap-6'>
+      {/* 開発環境でのAPI接続テスト */}
+      {process.env.NODE_ENV === 'development' && <ApiTest />}
+      
       <Tabs defaultValue='similar' className='w-full max-w-2xl'>
         <TabsList className='w-full flex'>
           <TabsTrigger value='similar' className='flex-1'>
@@ -71,157 +87,95 @@ export default function MainContent() {
         <TabsContent value='similar'>
           {/* プロフィールカード */}
           <div className='flex items-center justify-center gap-4 mt-6'>
-            <Button size='icon' variant='ghost' onClick={handlePrev}>
+            <Button 
+              size='icon' 
+              variant='ghost' 
+              onClick={handlePrev}
+              disabled={otherUsers.length <= 1}
+            >
               <ChevronLeft />
             </Button>
-            <Card>
-              <CardHeader className='flex flex-row items-center gap-4'>
-                <Avatar className='w-16 h-16'>
-                  <AvatarFallback>手</AvatarFallback>
-                </Avatar>
-                <div className='flex-1'>
-                  <CardTitle>{user.name}</CardTitle>
-                  <div className='flex items-center gap-2 mt-1'>
-                    <Star className='w-5 h-5 text-yellow-400' />
-                    <MoreHorizontal className='w-5 h-5 text-gray-400' />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className='mb-4 text-gray-700'>{user.intro}</p>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>主要スキル</h3>
-                  <ul className='list-disc list-inside text-sm text-gray-700'>
-                    {user.skills.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>過去のプロジェクト</h3>
-                  <div className='flex gap-4'>
-                    {user.projects.map((p, i) => (
-                      <a key={i} href={p.url} className='text-blue-600 hover:underline'>
-                        {p.label}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-                <div className='bg-gray-50 rounded-lg p-4 mt-4'>
-                  <div className='font-bold mb-1'>募集中のハッカソン</div>
-                  <div className='text-sm mb-1'>{user.hackathon.title}</div>
-                  <div className='text-xs text-gray-500 mb-2'>{user.hackathon.status}</div>
-                  <div className='text-xs text-gray-700'>{user.hackathon.desc}</div>
-                </div>
-              </CardContent>
-            </Card>
-            <Button size='icon' variant='ghost' onClick={handleNext}>
+            <div className="w-full max-w-md">
+              {currentDisplayUser && (
+                <UserCard 
+                  user={currentDisplayUser} 
+                  showBookmark={true}
+                />
+              )}
+            </div>
+            <Button 
+              size='icon' 
+              variant='ghost' 
+              onClick={handleNext}
+              disabled={otherUsers.length <= 1}
+            >
               <ChevronRight />
             </Button>
+          </div>
+          <div className="text-center text-sm text-gray-500 mt-4">
+            {currentIndex + 1} / {otherUsers.length}
           </div>
         </TabsContent>
         <TabsContent value='wanted'>
-          {/* プロフィールカード（同じUI） */}
           <div className='flex items-center justify-center gap-4 mt-6'>
-            <Button size='icon' variant='ghost' onClick={handlePrev}>
+            <Button 
+              size='icon' 
+              variant='ghost' 
+              onClick={handlePrev}
+              disabled={otherUsers.length <= 1}
+            >
               <ChevronLeft />
             </Button>
-            <Card>
-              <CardHeader className='flex flex-row items-center gap-4'>
-                <Avatar className='w-16 h-16'>
-                  <AvatarFallback>手</AvatarFallback>
-                </Avatar>
-                <div className='flex-1'>
-                  <CardTitle>{user.name}</CardTitle>
-                  <div className='flex items-center gap-2 mt-1'>
-                    <Star className='w-5 h-5 text-yellow-400' />
-                    <MoreHorizontal className='w-5 h-5 text-gray-400' />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className='mb-4 text-gray-700'>{user.intro}</p>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>主要スキル</h3>
-                  <ul className='list-disc list-inside text-sm text-gray-700'>
-                    {user.skills.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>過去のプロジェクト</h3>
-                  <div className='flex gap-4'>
-                    {user.projects.map((p, i) => (
-                      <a key={i} href={p.url} className='text-blue-600 hover:underline'>
-                        {p.label}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-                <div className='bg-gray-50 rounded-lg p-4 mt-4'>
-                  <div className='font-bold mb-1'>募集中のハッカソン</div>
-                  <div className='text-sm mb-1'>{user.hackathon.title}</div>
-                  <div className='text-xs text-gray-500 mb-2'>{user.hackathon.status}</div>
-                  <div className='text-xs text-gray-700'>{user.hackathon.desc}</div>
-                </div>
-              </CardContent>
-            </Card>
-            <Button size='icon' variant='ghost' onClick={handleNext}>
+            <div className="w-full max-w-md">
+              {currentDisplayUser && (
+                <UserCard 
+                  user={currentDisplayUser} 
+                  showBookmark={true}
+                />
+              )}
+            </div>
+            <Button 
+              size='icon' 
+              variant='ghost' 
+              onClick={handleNext}
+              disabled={otherUsers.length <= 1}
+            >
               <ChevronRight />
             </Button>
           </div>
+          <div className="text-center text-sm text-gray-500 mt-4">
+            {currentIndex + 1} / {otherUsers.length}
+          </div>
         </TabsContent>
         <TabsContent value='generation'>
-          {/* プロフィールカード（同じUI） */}
           <div className='flex items-center justify-center gap-4 mt-6'>
-            <Button size='icon' variant='ghost' onClick={handlePrev}>
+            <Button 
+              size='icon' 
+              variant='ghost' 
+              onClick={handlePrev}
+              disabled={otherUsers.length <= 1}
+            >
               <ChevronLeft />
             </Button>
-            <Card>
-              <CardHeader className='flex flex-row items-center gap-4'>
-                <Avatar className='w-16 h-16'>
-                  <AvatarFallback>手</AvatarFallback>
-                </Avatar>
-                <div className='flex-1'>
-                  <CardTitle>{user.name}</CardTitle>
-                  <div className='flex items-center gap-2 mt-1'>
-                    <Star className='w-5 h-5 text-yellow-400' />
-                    <MoreHorizontal className='w-5 h-5 text-gray-400' />
-                  </div>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className='mb-4 text-gray-700'>{user.intro}</p>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>主要スキル</h3>
-                  <ul className='list-disc list-inside text-sm text-gray-700'>
-                    {user.skills.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>過去のプロジェクト</h3>
-                  <div className='flex gap-4'>
-                    {user.projects.map((p, i) => (
-                      <a key={i} href={p.url} className='text-blue-600 hover:underline'>
-                        {p.label}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-                <div className='bg-gray-50 rounded-lg p-4 mt-4'>
-                  <div className='font-bold mb-1'>募集中のハッカソン</div>
-                  <div className='text-sm mb-1'>{user.hackathon.title}</div>
-                  <div className='text-xs text-gray-500 mb-2'>{user.hackathon.status}</div>
-                  <div className='text-xs text-gray-700'>{user.hackathon.desc}</div>
-                </div>
-              </CardContent>
-            </Card>
-            <Button size='icon' variant='ghost' onClick={handleNext}>
+            <div className="w-full max-w-md">
+              {currentDisplayUser && (
+                <UserCard 
+                  user={currentDisplayUser} 
+                  showBookmark={true}
+                />
+              )}
+            </div>
+            <Button 
+              size='icon' 
+              variant='ghost' 
+              onClick={handleNext}
+              disabled={otherUsers.length <= 1}
+            >
               <ChevronRight />
             </Button>
+          </div>
+          <div className="text-center text-sm text-gray-500 mt-4">
+            {currentIndex + 1} / {otherUsers.length}
           </div>
         </TabsContent>
       </Tabs>
