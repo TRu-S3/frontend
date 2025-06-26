@@ -3,40 +3,8 @@
 import { useState, useEffect, useCallback } from 'react'
 // import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import { Button } from '@/components/ui/button'
-import { Star, ChevronLeft, ChevronRight, Users, Loader2 } from 'lucide-react'
-
-// 型定義
-interface Hackathon {
-  id: string
-  title: string
-  status: string
-  desc: string
-  deadline: string
-  remainingDays: number
-  currentMembers: number
-  maxMembers: number
-  avatar: string
-  avatarFallback: string
-}
-
-interface User {
-  id: string
-  name: string
-  skills: string[]
-  intro: string
-  projects: { label: string; url: string }[]
-  hackathons: Hackathon[]
-}
-
-interface HackathonCache {
-  [userId: string]: {
-    data: Hackathon[]
-    timestamp: number
-  }
-}
+import { User, Hackathon, HackathonCache } from './types'
+import ProfileCardContainer from './ProfileCardContainer'
 
 const users: User[] = [
   {
@@ -192,6 +160,10 @@ export default function MainContent() {
   })
   */
 
+  const handleRetry = () => {
+    getUserHackathons(user.id)
+  }
+
   return (
     <section className='flex flex-col items-center px-2 py-6 gap-6'>
       <Tabs defaultValue='similar' className='w-full max-w-2xl'>
@@ -206,430 +178,47 @@ export default function MainContent() {
             同世代のユーザー
           </TabsTrigger>
         </TabsList>
+
         <TabsContent value='similar'>
-          {/* プロフィールカード */}
-          <div className='flex items-center justify-center gap-4 mt-6'>
-            <Button size='icon' variant='ghost' onClick={handlePrev}>
-              <ChevronLeft />
-            </Button>
-            <Card className='relative'>
-              <Button
-                size='icon'
-                variant='ghost'
-                className='absolute top-3 right-3 z-10'
-                aria-label={favoriteUsers[currentUser] ? 'お気に入り解除' : 'お気に入り'}
-                title={favoriteUsers[currentUser] ? 'お気に入り解除' : 'お気に入り'}
-                onClick={() => handleToggleFavorite(currentUser)}
-              >
-                <Star
-                  className={`w-5 h-5 ${favoriteUsers[currentUser] ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}
-                  fill={favoriteUsers[currentUser] ? 'currentColor' : 'none'}
-                />
-              </Button>
-              <CardHeader className='flex flex-row items-center gap-4'>
-                <Avatar className='w-16 h-16'>
-                  <AvatarFallback>手</AvatarFallback>
-                </Avatar>
-                <div className='flex-1'>
-                  <CardTitle>{user.name}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className='mb-4 text-gray-700'>{user.intro}</p>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>主要スキル</h3>
-                  <ul className='list-disc list-inside text-sm text-gray-700'>
-                    {user.skills.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>過去のプロジェクト</h3>
-                  <div className='flex gap-4'>
-                    {user.projects.map((p, i) => (
-                      <a key={i} href={p.url} className='text-blue-600 hover:underline'>
-                        {p.label}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-
-                {/* ハッカソン募集セクション */}
-                <div className='space-y-3'>
-                  <h3 className='font-semibold mb-3'>あなたへのおすすめ募集</h3>
-
-                  {loading && (
-                    <div className='flex items-center justify-center py-8'>
-                      <Loader2 className='w-6 h-6 animate-spin text-gray-400' />
-                      <span className='ml-2 text-gray-600'>募集情報を読み込み中...</span>
-                    </div>
-                  )}
-
-                  {error && (
-                    <div className='bg-red-50 border border-red-200 rounded-lg p-4'>
-                      <p className='text-red-600 text-sm'>エラーが発生しました: {error}</p>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        className='mt-2'
-                        onClick={() => getUserHackathons(user.id)}
-                      >
-                        再試行
-                      </Button>
-                    </div>
-                  )}
-
-                  {!loading &&
-                    !error &&
-                    userHackathons.length > 0 &&
-                    userHackathons.map((hackathon) => (
-                      <Card
-                        key={hackathon.id}
-                        className='mb-2 hover:shadow-md transition-shadow duration-200'
-                      >
-                        <CardContent className='flex flex-col gap-3 pt-4'>
-                          <div className='font-bold text-md mb-1 text-gray-800'>
-                            {hackathon.title}
-                          </div>
-
-                          <div className='flex items-start gap-3 mb-3'>
-                            <Avatar className='w-10 h-10'>
-                              <AvatarImage src={hackathon.avatar} alt={hackathon.title} />
-                              <AvatarFallback>{hackathon.avatarFallback}</AvatarFallback>
-                            </Avatar>
-                            <div className='flex-1 min-w-0'>
-                              {/* ユーザーコメント */}
-                              <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3 relative'>
-                                <div className='text-sm text-gray-800 font-medium'>
-                                  {hackathon.status.split(' / ')[0]}
-                                </div>
-                              </div>
-
-                              {/* 募集人数と残り情報 */}
-                              <div className='flex items-center justify-between mb-2'>
-                                <div className='flex items-center gap-1 text-xs text-gray-600'>
-                                  <Users className='w-3 h-3' />
-                                  <span>
-                                    {hackathon.currentMembers}/{hackathon.maxMembers}名確定
-                                  </span>
-                                </div>
-                                <div className='text-xs font-medium text-orange-600'>
-                                  残り{hackathon.maxMembers - hackathon.currentMembers}名
-                                </div>
-                              </div>
-
-                              <div className='flex items-center gap-2 text-xs text-gray-600'>
-                                <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                                <span>募集中（締切：{hackathon.deadline}）</span>
-                              </div>
-                            </div>
-                          </div>
-                          <Button
-                            size='sm'
-                            className='w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium'
-                          >
-                            詳細を見る（残り{hackathon.remainingDays}日）
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-
-                  {!loading && !error && userHackathons.length === 0 && (
-                    <div className='text-center py-8 text-gray-500'>
-                      <p>現在募集中のハッカソンはありません</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Button size='icon' variant='ghost' onClick={handleNext}>
-              <ChevronRight />
-            </Button>
-          </div>
+          <ProfileCardContainer
+            user={user}
+            isFavorite={favoriteUsers[currentUser]}
+            onToggleFavorite={() => handleToggleFavorite(currentUser)}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            hackathons={userHackathons}
+            loading={loading}
+            error={error}
+            onRetry={handleRetry}
+          />
         </TabsContent>
+
         <TabsContent value='wanted'>
-          {/* プロフィールカード（同じUI） */}
-          <div className='flex items-center justify-center gap-4 mt-6'>
-            <Button size='icon' variant='ghost' onClick={handlePrev}>
-              <ChevronLeft />
-            </Button>
-            <Card className='relative'>
-              <Button
-                size='icon'
-                variant='ghost'
-                className='absolute top-3 right-3 z-10'
-                aria-label={favoriteUsers[currentUser] ? 'お気に入り解除' : 'お気に入り'}
-                title={favoriteUsers[currentUser] ? 'お気に入り解除' : 'お気に入り'}
-                onClick={() => handleToggleFavorite(currentUser)}
-              >
-                <Star
-                  className={`w-5 h-5 ${favoriteUsers[currentUser] ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}
-                  fill={favoriteUsers[currentUser] ? 'currentColor' : 'none'}
-                />
-              </Button>
-              <CardHeader className='flex flex-row items-center gap-4'>
-                <Avatar className='w-16 h-16'>
-                  <AvatarFallback>手</AvatarFallback>
-                </Avatar>
-                <div className='flex-1'>
-                  <CardTitle>{user.name}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className='mb-4 text-gray-700'>{user.intro}</p>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>主要スキル</h3>
-                  <ul className='list-disc list-inside text-sm text-gray-700'>
-                    {user.skills.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>過去のプロジェクト</h3>
-                  <div className='flex gap-4'>
-                    {user.projects.map((p, i) => (
-                      <a key={i} href={p.url} className='text-blue-600 hover:underline'>
-                        {p.label}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-
-                {/* ハッカソン募集セクション */}
-                <div className='space-y-3'>
-
-                  {loading && (
-                    <div className='flex items-center justify-center py-8'>
-                      <Loader2 className='w-6 h-6 animate-spin text-gray-400' />
-                      <span className='ml-2 text-gray-600'>募集情報を読み込み中...</span>
-                    </div>
-                  )}
-
-                  {error && (
-                    <div className='bg-red-50 border border-red-200 rounded-lg p-4'>
-                      <p className='text-red-600 text-sm'>エラーが発生しました: {error}</p>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        className='mt-2'
-                        onClick={() => getUserHackathons(user.id)}
-                      >
-                        再試行
-                      </Button>
-                    </div>
-                  )}
-
-                  {!loading &&
-                    !error &&
-                    userHackathons.length > 0 &&
-                    userHackathons.map((hackathon) => (
-                      <Card
-                        key={hackathon.id}
-                        className='mb-2 hover:shadow-md transition-shadow duration-200'
-                      >
-                        <CardContent className='flex flex-col gap-3 pt-4'>
-                          <div className='font-bold text-md mb-1 text-gray-800'>
-                            {hackathon.title}
-                          </div>
-
-                          <div className='flex items-start gap-3 mb-3'>
-                            <Avatar className='w-10 h-10'>
-                              <AvatarImage src={hackathon.avatar} alt={hackathon.title} />
-                              <AvatarFallback>{hackathon.avatarFallback}</AvatarFallback>
-                            </Avatar>
-                            <div className='flex-1 min-w-0'>
-                              {/* ユーザーコメント */}
-                              <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3 relative'>
-                                <div className='text-sm text-gray-800 font-medium'>
-                                  {hackathon.status.split(' / ')[0]}
-                                </div>
-                              </div>
-
-                              {/* 募集人数と残り情報 */}
-                              <div className='flex items-center justify-between mb-2'>
-                                <div className='flex items-center gap-1 text-xs text-gray-600'>
-                                  <Users className='w-3 h-3' />
-                                  <span>
-                                    {hackathon.currentMembers}/{hackathon.maxMembers}名確定
-                                  </span>
-                                </div>
-                                <div className='text-xs font-medium text-orange-600'>
-                                  残り{hackathon.maxMembers - hackathon.currentMembers}名
-                                </div>
-                              </div>
-
-                              <div className='flex items-center gap-2 text-xs text-gray-600'>
-                                <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                                <span>募集中（締切：{hackathon.deadline}）</span>
-                              </div>
-                            </div>
-                          </div>
-                          <Button
-                            size='sm'
-                            className='w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium'
-                          >
-                            詳細を見る（残り{hackathon.remainingDays}日）
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-
-                  {!loading && !error && userHackathons.length === 0 && (
-                    <div className='text-center py-8 text-gray-500'>
-                      <p>現在募集中のハッカソンはありません</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Button size='icon' variant='ghost' onClick={handleNext}>
-              <ChevronRight />
-            </Button>
-          </div>
+          <ProfileCardContainer
+            user={user}
+            isFavorite={favoriteUsers[currentUser]}
+            onToggleFavorite={() => handleToggleFavorite(currentUser)}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            hackathons={userHackathons}
+            loading={loading}
+            error={error}
+            onRetry={handleRetry}
+          />
         </TabsContent>
+
         <TabsContent value='generation'>
-          {/* プロフィールカード（同じUI） */}
-          <div className='flex items-center justify-center gap-4 mt-6'>
-            <Button size='icon' variant='ghost' onClick={handlePrev}>
-              <ChevronLeft />
-            </Button>
-            <Card className='relative'>
-              <Button
-                size='icon'
-                variant='ghost'
-                className='absolute top-3 right-3 z-10'
-                aria-label={favoriteUsers[currentUser] ? 'お気に入り解除' : 'お気に入り'}
-                title={favoriteUsers[currentUser] ? 'お気に入り解除' : 'お気に入り'}
-                onClick={() => handleToggleFavorite(currentUser)}
-              >
-                <Star
-                  className={`w-5 h-5 ${favoriteUsers[currentUser] ? 'text-yellow-400 fill-yellow-400' : 'text-gray-400'}`}
-                  fill={favoriteUsers[currentUser] ? 'currentColor' : 'none'}
-                />
-              </Button>
-              <CardHeader className='flex flex-row items-center gap-4'>
-                <Avatar className='w-16 h-16'>
-                  <AvatarFallback>手</AvatarFallback>
-                </Avatar>
-                <div className='flex-1'>
-                  <CardTitle>{user.name}</CardTitle>
-                </div>
-              </CardHeader>
-              <CardContent>
-                <p className='mb-4 text-gray-700'>{user.intro}</p>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>主要スキル</h3>
-                  <ul className='list-disc list-inside text-sm text-gray-700'>
-                    {user.skills.map((s, i) => (
-                      <li key={i}>{s}</li>
-                    ))}
-                  </ul>
-                </div>
-                <div className='mb-4'>
-                  <h3 className='font-semibold mb-1'>過去のプロジェクト</h3>
-                  <div className='flex gap-4'>
-                    {user.projects.map((p, i) => (
-                      <a key={i} href={p.url} className='text-blue-600 hover:underline'>
-                        {p.label}
-                      </a>
-                    ))}
-                  </div>
-                </div>
-
-                {/* ハッカソン募集セクション */}
-                <div className='space-y-3'>
-                  <h3 className='font-semibold mb-3'>あなたへのおすすめ募集</h3>
-
-                  {loading && (
-                    <div className='flex items-center justify-center py-8'>
-                      <Loader2 className='w-6 h-6 animate-spin text-gray-400' />
-                      <span className='ml-2 text-gray-600'>募集情報を読み込み中...</span>
-                    </div>
-                  )}
-
-                  {error && (
-                    <div className='bg-red-50 border border-red-200 rounded-lg p-4'>
-                      <p className='text-red-600 text-sm'>エラーが発生しました: {error}</p>
-                      <Button
-                        size='sm'
-                        variant='outline'
-                        className='mt-2'
-                        onClick={() => getUserHackathons(user.id)}
-                      >
-                        再試行
-                      </Button>
-                    </div>
-                  )}
-
-                  {!loading &&
-                    !error &&
-                    userHackathons.length > 0 &&
-                    userHackathons.map((hackathon) => (
-                      <Card
-                        key={hackathon.id}
-                        className='mb-2 hover:shadow-md transition-shadow duration-200'
-                      >
-                        <CardContent className='flex flex-col gap-3 pt-4'>
-                          <div className='font-bold text-md mb-1 text-gray-800'>
-                            {hackathon.title}
-                          </div>
-
-                          <div className='flex items-start gap-3 mb-3'>
-                            <Avatar className='w-10 h-10'>
-                              <AvatarImage src={hackathon.avatar} alt={hackathon.title} />
-                              <AvatarFallback>{hackathon.avatarFallback}</AvatarFallback>
-                            </Avatar>
-                            <div className='flex-1 min-w-0'>
-                              {/* ユーザーコメント */}
-                              <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3 relative'>
-                                <div className='text-sm text-gray-800 font-medium'>
-                                  {hackathon.status.split(' / ')[0]}
-                                </div>
-                              </div>
-
-                              {/* 募集人数と残り情報 */}
-                              <div className='flex items-center justify-between mb-2'>
-                                <div className='flex items-center gap-1 text-xs text-gray-600'>
-                                  <Users className='w-3 h-3' />
-                                  <span>
-                                    {hackathon.currentMembers}/{hackathon.maxMembers}名確定
-                                  </span>
-                                </div>
-                                <div className='text-xs font-medium text-orange-600'>
-                                  残り{hackathon.maxMembers - hackathon.currentMembers}名
-                                </div>
-                              </div>
-
-                              <div className='flex items-center gap-2 text-xs text-gray-600'>
-                                <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                                <span>募集中（締切：{hackathon.deadline}）</span>
-                              </div>
-                            </div>
-                          </div>
-                          <Button
-                            size='sm'
-                            className='w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium'
-                          >
-                            詳細を見る（残り{hackathon.remainingDays}日）
-                          </Button>
-                        </CardContent>
-                      </Card>
-                    ))}
-
-                  {!loading && !error && userHackathons.length === 0 && (
-                    <div className='text-center py-8 text-gray-500'>
-                      <p>現在募集中のハッカソンはありません</p>
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
-            <Button size='icon' variant='ghost' onClick={handleNext}>
-              <ChevronRight />
-            </Button>
-          </div>
+          <ProfileCardContainer
+            user={user}
+            isFavorite={favoriteUsers[currentUser]}
+            onToggleFavorite={() => handleToggleFavorite(currentUser)}
+            onPrev={handlePrev}
+            onNext={handleNext}
+            hackathons={userHackathons}
+            loading={loading}
+            error={error}
+            onRetry={handleRetry}
+          />
         </TabsContent>
       </Tabs>
       {/* カレンダー */}
