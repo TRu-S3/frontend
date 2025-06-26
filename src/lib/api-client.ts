@@ -38,32 +38,22 @@ export const apiClient = {
 
     // 認証が必要な場合のみトークンを追加
     if (requireAuth) {
-      console.log(`🔐 認証が必要です - トークンを取得中...`)
       try {
-        const tokenStartTime = performance.now()
         const idToken = await getIdToken()
-        const tokenEndTime = performance.now()
-        const tokenElapsedTime = Math.round(tokenEndTime - tokenStartTime)
 
         if (idToken) {
           requestHeaders.Authorization = `Bearer ${idToken}`
-          console.log(`🔐 APIリクエストのためのIDトークン取得完了（所要時間: ${tokenElapsedTime}ms）`)
         } else {
-          console.warn(`⚠️ IDトークンの取得に失敗しました（所要時間: ${tokenElapsedTime}ms）`)
           throw new ApiError(401, 'Unauthorized', 'IDトークンの取得に失敗しました')
         }
       } catch (error) {
-        console.error(`❌ トークン取得中にエラーが発生しました:`, error)
+        console.error('Token acquisition error:', error)
         throw new ApiError(401, 'Unauthorized', 'IDトークンの取得に失敗しました')
       }
-    } else {
-      console.log(`🔓 認証なしでAPIリクエストを実行します`)
     }
 
     // APIリクエストを実行
     const fullUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`
-    console.log(`🌐 API Request: ${init.method || 'GET'} ${fullUrl} (Auth: ${requireAuth})`)
-    console.log(`📋 Request Headers:`, requestHeaders)
     
     let response: Response
     try {
@@ -72,11 +62,9 @@ export const apiClient = {
         headers: requestHeaders,
       })
     } catch (error) {
-      console.error(`❌ Network Error: ${error}`)
+      console.error('Network Error:', error)
       throw new ApiError(0, 'Network Error', `Failed to connect to ${fullUrl}: ${error}`)
     }
-
-    console.log(`📡 API Response: ${response.status} ${response.statusText}`)
 
     // エラーチェックを先にする
     if (!response.ok) {
@@ -90,8 +78,7 @@ export const apiClient = {
       if (errorText) {
         errorMessage += ` - ${errorText}`
       }
-      console.error(`❌ 500エラー発生 URL: ${fullUrl}`)
-      console.error(`❌ ${errorMessage}`)
+      console.error(`API Error (${response.status}) at ${fullUrl}: ${errorMessage}`)
       throw new ApiError(response.status, response.statusText, errorMessage)
     }
 
@@ -100,9 +87,8 @@ export const apiClient = {
     try {
       const textResponse = await response.text()
       data = textResponse ? JSON.parse(textResponse) : null as T
-      console.log(`✅ API Success: ${fullUrl}`)
     } catch (parseError) {
-      console.error('⚠️ Failed to parse JSON response:', parseError)
+      console.error('Failed to parse JSON response:', parseError)
       throw new ApiError(response.status, 'JSON Parse Error', `Failed to parse response: ${parseError}`)
     }
 

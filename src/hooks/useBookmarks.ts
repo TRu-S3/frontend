@@ -16,10 +16,7 @@ export const useBookmarks = ({ userId, autoFetch = true }: UseBookmarksProps = {
   const [error, setError] = useState<string | null>(null)
 
   const fetchBookmarks = useCallback(async () => {
-    console.log('🔖 useBookmarks: fetchBookmarks開始', { userId })
-    
     if (!userId) {
-      console.log('🔖 useBookmarks: userIdなし - スキップ')
       return
     }
 
@@ -28,18 +25,14 @@ export const useBookmarks = ({ userId, autoFetch = true }: UseBookmarksProps = {
       setError(null)
       
       // ブックマーク一覧を取得
-      console.log('🔖 useBookmarks: ブックマーク一覧取得中')
       const response = await bookmarksApi.getUserBookmarks(userId)
-      console.log('🔖 useBookmarks: ブックマーク一覧取得結果:', response)
       setBookmarks(response.bookmarks)
 
       // ブックマークされたユーザーの詳細情報を取得
-      console.log('🔖 useBookmarks: ブックマークユーザー詳細取得中')
       const users = await bookmarksApi.getBookmarkedUsersWithDetails(userId)
-      console.log('🔖 useBookmarks: ブックマークユーザー詳細取得結果:', users)
       setBookmarkedUsers(users)
     } catch (err) {
-      console.error('🔖 useBookmarks: Failed to fetch bookmarks:', err)
+      console.error('Failed to fetch bookmarks:', err)
       setError('ブックマークの取得に失敗しました')
     } finally {
       setLoading(false)
@@ -91,45 +84,32 @@ export const useBookmarks = ({ userId, autoFetch = true }: UseBookmarksProps = {
   }, [bookmarks])
 
   const toggleBookmark = useCallback(async (bookmarkedUserId: number) => {
-    console.log('🔖 useBookmarks: toggleBookmark開始', { userId, bookmarkedUserId })
-    
     if (!userId) {
-      console.log('🔖 useBookmarks: userIdなし - スキップ')
       return
     }
 
     try {
       setError(null)
-      console.log('🔖 useBookmarks: bookmarksApi.toggle呼び出し')
       const result = await bookmarksApi.toggle(userId, bookmarkedUserId)
-      console.log('🔖 useBookmarks: toggle結果:', result)
       
       // ブックマーク一覧を再取得
-      console.log('🔖 useBookmarks: ブックマーク一覧再取得開始')
-      try {
-        await fetchBookmarks()
-        console.log('🔖 useBookmarks: ブックマーク一覧再取得完了')
-      } catch (fetchError) {
-        console.error('🔖 useBookmarks: ブックマーク一覧再取得でエラー:', fetchError)
-      }
+      await fetchBookmarks()
       
       return result
     } catch (err) {
-      console.error('🔖 useBookmarks: Failed to toggle bookmark:', err)
+      console.error('Failed to toggle bookmark:', err)
       setError('ブックマークの更新に失敗しました')
       throw err
     }
-  }, [userId])
+  }, [userId, fetchBookmarks])
 
   useEffect(() => {
-    console.log('🔖 useBookmarks: useEffect実行', { autoFetch, userId })
     if (autoFetch && userId) {
-      console.log('🔖 useBookmarks: fetchBookmarks呼び出し開始')
       fetchBookmarks().catch(err => {
-        console.error('🔖 useBookmarks: useEffect内でfetchBookmarksエラー:', err)
+        console.error('useEffect fetchBookmarks error:', err)
       })
     }
-  }, [autoFetch, userId]) // fetchBookmarksを依存配列から削除
+  }, [autoFetch, userId, fetchBookmarks])
 
   return {
     bookmarks,

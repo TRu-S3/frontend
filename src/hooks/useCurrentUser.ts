@@ -11,7 +11,6 @@ export const useCurrentUser = () => {
   const [error, setError] = useState<string | null>(null)
   const [lastFetchedEmail, setLastFetchedEmail] = useState<string | null>(null)
 
-  console.log('🎯 useCurrentUser: loading =', loading, 'user =', user, 'session =', session?.user?.email)
 
   useEffect(() => {
     
@@ -40,16 +39,14 @@ export const useCurrentUser = () => {
         
         // Gmailでユーザーを検索
         const foundUser = await usersApi.findByGmail(currentEmail)
-        console.log('🎯 useCurrentUser: ユーザー検索結果:', foundUser)
         setUser(foundUser)
         setLastFetchedEmail(currentEmail)
       } catch (err) {
-        console.error('🎯 useCurrentUser: Failed to fetch current user:', err)
+        console.error('Failed to fetch current user:', err)
         setError('ユーザー情報の取得に失敗しました')
         setUser(null)
         setLastFetchedEmail(currentEmail) // エラーでも記録して重複を防ぐ
       } finally {
-        console.log('🎯 useCurrentUser: ローディング終了')
         setLoading(false)
       }
     }

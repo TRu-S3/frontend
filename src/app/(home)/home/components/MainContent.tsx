@@ -7,14 +7,11 @@ import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { useUsers } from '@/hooks/useUsers';
 import { useCurrentUser } from '@/hooks/useCurrentUser';
 import UserCard from '@/components/user/UserCard';
-import ApiTest from '@/components/debug/api-test';
 
 export default function MainContent() {
   const { user: currentUser, loading: currentUserLoading } = useCurrentUser()
   const { users, loading: usersLoading, error } = useUsers({ autoFetch: true, filters: { limit: 20 } })
   const [currentIndex, setCurrentIndex] = useState(0)
-  
-  console.log('🎯 MainContent: currentUserLoading =', currentUserLoading, 'usersLoading =', usersLoading, 'users.length =', users.length)
   
   const loading = currentUserLoading || usersLoading
   
@@ -69,9 +66,6 @@ export default function MainContent() {
 
   return (
     <section className='flex flex-col items-center px-2 py-6 gap-6'>
-      {/* 開発環境でのAPI接続テスト */}
-      {process.env.NODE_ENV === 'development' && <ApiTest />}
-      
       <Tabs defaultValue='similar' className='w-full max-w-2xl'>
         <TabsList className='w-full flex'>
           <TabsTrigger value='similar' className='flex-1'>

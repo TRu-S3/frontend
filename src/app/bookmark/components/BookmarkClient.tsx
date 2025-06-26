@@ -16,14 +16,6 @@ export const BookmarkClient = () => {
   })
   const [sortBy, setSortBy] = useState<'recent' | 'name' | 'created_at'>('created_at')
 
-  console.log('🔖 BookmarkClient: レンダリング', { 
-    currentUser: currentUser?.id, 
-    bookmarkedUsersLength: bookmarkedUsers.length,
-    bookmarkedUsers,
-    userLoading,
-    bookmarksLoading,
-    error
-  })
 
   const handleRemoveBookmark = async (userId: number) => {
     if (!currentUser) return

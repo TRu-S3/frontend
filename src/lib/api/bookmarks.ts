@@ -85,36 +85,27 @@ export const bookmarksApi = {
   // ブックマークを追加または削除（トグル）
   async toggle(userId: number, bookmarkedUserId: number): Promise<{ isBookmarked: boolean; bookmark?: Bookmark }> {
     try {
-      console.log('🔖 bookmarksApi.toggle: 開始', { userId, bookmarkedUserId })
-      
       // 既存のブックマークを検索
-      console.log('🔖 bookmarksApi.toggle: 既存ブックマーク検索中')
       const bookmarks = await this.getUserBookmarks(userId)
-      console.log('🔖 bookmarksApi.toggle: 検索結果', bookmarks)
       
       const existingBookmark = bookmarks.bookmarks.find(
         bookmark => bookmark.bookmarked_user_id === bookmarkedUserId
       )
-      console.log('🔖 bookmarksApi.toggle: 既存ブックマーク:', existingBookmark)
 
       if (existingBookmark) {
         // ブックマークが存在する場合は削除
-        console.log('🔖 bookmarksApi.toggle: ブックマーク削除中', existingBookmark.id)
         await this.delete(existingBookmark.id)
-        console.log('🔖 bookmarksApi.toggle: ブックマーク削除完了')
         return { isBookmarked: false }
       } else {
         // ブックマークが存在しない場合は作成
-        console.log('🔖 bookmarksApi.toggle: ブックマーク作成中')
         const newBookmark = await this.create({
           user_id: userId,
           bookmarked_user_id: bookmarkedUserId
         })
-        console.log('🔖 bookmarksApi.toggle: ブックマーク作成完了', newBookmark)
         return { isBookmarked: true, bookmark: newBookmark }
       }
     } catch (error) {
-      console.error('🔖 bookmarksApi.toggle: エラー発生:', error)
+      console.error('Failed to toggle bookmark:', error)
       throw error
     }
   },
@@ -125,19 +116,16 @@ export const bookmarksApi = {
     limit?: number
   }): Promise<User[]> {
     try {
-      console.log('🔖 getBookmarkedUsersWithDetails: 開始', { userId })
       const response = await this.getUserBookmarks(userId, params)
-      console.log('🔖 getBookmarkedUsersWithDetails: レスポンス', response)
       
       // ブックマークされたユーザーの情報のみを返す
       const users = response.bookmarks
         .filter(bookmark => bookmark.bookmarked_user || bookmark.BookmarkedUser)
         .map(bookmark => bookmark.bookmarked_user || bookmark.BookmarkedUser!)
       
-      console.log('🔖 getBookmarkedUsersWithDetails: 抽出されたユーザー', users)
       return users
     } catch (error) {
-      console.error('🔖 getBookmarkedUsersWithDetails: エラー', error)
+      console.error('Failed to get bookmarked users with details:', error)
       return []
     }
   }

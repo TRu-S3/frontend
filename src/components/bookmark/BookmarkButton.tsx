@@ -27,20 +27,15 @@ export const BookmarkButton = ({
   const [loading, setLoading] = useState(false)
 
   const handleToggle = async () => {
-    console.log('🔖 BookmarkButton: ハンドルトグル開始', { currentUser: currentUser?.id, targetUserId })
-    
     if (!currentUser || currentUser.id === targetUserId) {
-      console.log('🔖 BookmarkButton: ユーザーなしまたは自分自身 - スキップ')
       return
     }
 
     setLoading(true)
     try {
-      console.log('🔖 BookmarkButton: toggleBookmark呼び出し')
       await toggleBookmark(targetUserId)
-      console.log('🔖 BookmarkButton: toggleBookmark完了')
     } catch (error) {
-      console.error('🔖 BookmarkButton: Failed to toggle bookmark:', error)
+      console.error('Failed to toggle bookmark:', error)
     } finally {
       setLoading(false)
     }
@@ -51,13 +46,6 @@ export const BookmarkButton = ({
   }
 
   const bookmarked = isBookmarked(targetUserId)
-  
-  console.log('🔖 BookmarkButton: レンダリング', { 
-    currentUserId: currentUser?.id, 
-    targetUserId, 
-    bookmarked,
-    hasCurrentUser: !!currentUser
-  })
 
   return (
     <Button
