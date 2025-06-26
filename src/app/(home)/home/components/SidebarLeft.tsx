@@ -71,14 +71,11 @@ export default function SidebarLeft() {
   }
 
   return (
-    <aside className='hidden lg:flex flex-col border-r bg-gradient-to-b from-slate-50 to-white h-[calc(100vh-56px)] max-h-[calc(100vh-56px)] min-w-[280px] w-full md:w-[340px]'>
-      {/* ヘッダー */}
+    <div className='hidden lg:flex flex-col sticky top-[56px] left-0 z-20 border-r bg-gradient-to-b from-slate-50 to-white h-[calc(100vh-56px)] w-full'>
       <div className='p-6 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
         <h2 className='font-bold text-xl text-gray-800 tracking-tight'>AI チャット</h2>
         <p className='text-sm text-gray-500 mt-1'>何でもお気軽にお聞きください</p>
       </div>
-
-      {/* メインコンテンツ */}
       <div className='flex-1 flex flex-col justify-end p-4 gap-4 overflow-hidden'>
         {/* クイックアクションボタン */}
         <div className='space-y-3'>
@@ -96,14 +93,11 @@ export default function SidebarLeft() {
             📚 このプロダクトの使い方は？
           </Button>
         </div>
-
         {/* メッセージエリア */}
         <div
           ref={messagesContainerRef}
           className='flex flex-col gap-3 overflow-y-auto max-h-[45vh] md:max-h-[50vh] pr-2 scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100'
-          style={{
-            scrollBehavior: 'smooth',
-          }}
+          style={{ scrollBehavior: 'smooth' }}
         >
           {messages.map((msg, idx) =>
             msg.sender === 'user' ? (
@@ -129,7 +123,6 @@ export default function SidebarLeft() {
           )}
           <div ref={messagesEndRef} />
         </div>
-
         {/* 入力エリア */}
         <div className='space-y-3'>
           <div className='flex items-center gap-3 bg-white rounded-2xl border-2 border-gray-200 p-2 hover:border-blue-300 transition-colors duration-200'>
@@ -149,20 +142,8 @@ export default function SidebarLeft() {
               <Send className='w-4 h-4 text-white' />
             </Button>
           </div>
-
-          {/* ユーザー情報 */}
-          {/* <div className='flex items-center justify-between p-3 bg-white/50 rounded-xl border border-gray-100'>
-            <div className='flex items-center gap-3'>
-              <Avatar className='w-8 h-8 '>
-                <AvatarImage src={session?.user?.image ?? ''} />
-                <AvatarFallback>{session?.user?.name?.charAt(0)}</AvatarFallback>
-              </Avatar>
-              <span className='text-sm font-medium text-gray-700'>{session?.user?.name}</span>
-            </div>
-            <MoreHorizontal className='w-5 h-5 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors duration-200' />
-          </div> */}
         </div>
       </div>
-    </aside>
+    </div>
   )
 }
