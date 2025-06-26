@@ -18,7 +18,9 @@ export default async function Page() {
         className='flex-1 flex flex-row bg-slate-200 min-h-0 px-[32px]'
         style={{ minHeight: 'calc(100vh - 56px)' }}
       >
-        <SidebarLeft />
+        <div className='w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0'>
+          <SidebarLeft />
+        </div>
         {/* メインコンテンツ：2/4 */}
         <div className='flex-1 min-w-[240px] bg-white'>
           <MainContent />
