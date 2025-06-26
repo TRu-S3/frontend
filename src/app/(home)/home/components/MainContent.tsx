@@ -399,7 +399,6 @@ export default function MainContent() {
 
                 {/* ハッカソン募集セクション */}
                 <div className='space-y-3'>
-                  <h3 className='font-semibold mb-3'>あなたへのおすすめ募集</h3>
 
                   {loading && (
                     <div className='flex items-center justify-center py-8'>
