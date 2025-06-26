@@ -176,7 +176,7 @@ export default function MatchingPopup({
     try {
       // バックエンド連携は一旦コメントアウト
       // const res = await fetch('/api/matching', { ... })
-      // TODO: バリデーション追加
+      // TODO: バリデーション追加(どこを必須にするのがいいかなぁ。バックエンド含めて要検討。なければそのままで)
       // if (!form.hackathonName || !form.deadline) {
       //   throw new Error('必須項目が未入力です')
       // }
