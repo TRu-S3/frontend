@@ -12,15 +12,23 @@ interface PopupProps {
   trigger: React.ReactNode
   title?: string
   children: React.ReactNode
+  open?: boolean
+  onOpenChange?: (open: boolean) => void
 }
 
-export default function Popup({ trigger, title = 'モーダル', children }: PopupProps) {
+export default function Popup({
+  trigger,
+  title = 'モーダル',
+  children,
+  open,
+  onOpenChange,
+}: PopupProps) {
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogTrigger asChild>
         <div>{trigger}</div>
       </DialogTrigger>
-      <DialogContent className='fixed top-1/2 left-1/2 z-[60] py-4 px-24 bg-white rounded-xl shadow-lg border border-gray-200 -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto w-auto min-w-[200px] max-w-[90vw]'>
+      <DialogContent className='fixed top-1/2 left-1/2 z-[60] py-4 px-6 bg-white rounded-xl shadow-lg border border-gray-200 -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto w-[80vw] max-w-[80vw] min-w-[80vw]'>
         <VisuallyHidden.Root>
           <DialogTitle>{title}</DialogTitle>
         </VisuallyHidden.Root>

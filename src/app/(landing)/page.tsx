@@ -32,7 +32,6 @@ export default function Page() {
       const url = (e.target as HTMLInputElement).value
       if (url.trim()) {
         // Handle URL submission logic here
-        console.log('Analyzing URL:', url)
       }
     }
   }
