@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Bell, Star, Plus, Mail, Users } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import Image from 'next/image'
 import MatchingPopup from './MatchingPopup'
 import React, { useState } from 'react'
 import RecommendedHackathonCard from './RecommendedHackathonCard'
@@ -14,6 +13,7 @@ import { useHackathons } from '@/hooks/useHackathons'
 export default function SidebarRight() {
   const [popupOpen, setPopupOpen] = useState(false)
   const [selectedHackathon, setSelectedHackathon] = useState<string | undefined>(undefined)
+  const { hackathons, loading, error } = useHackathons();
 
   const recommendedHackathons = [
     {
@@ -101,39 +101,39 @@ export default function SidebarRight() {
           </div>
         </div>
         <div className='relative'>
-          {(() => {
-            const { hackathons, loading, error } = useHackathons();
-            if (loading) return <div className='py-8 text-center text-gray-500'>読み込み中...</div>;
-            if (error) return <div className='py-8 text-center text-red-500'>{error}</div>;
-            if (!hackathons.length) return <div className='py-8 text-center text-gray-500'>おすすめイベントがありません</div>;
-            return (
-              <Carousel className='w-full'>
-                <CarouselContent>
-                  {hackathons.map((hackathon) => (
-                    <CarouselItem key={hackathon.id} className='basis-1/1 md:basis-2/3 lg:basis-1/2 p-2'>
-                      <RecommendedHackathonCard
-                        name={hackathon.name}
-                        bannerUrl={hackathon.banner_url || '/default.png'}
-                        description={hackathon.description}
-                        participants={hackathon.max_participants}
-                        status={hackathon.status === 'upcoming' ? '募集中' : hackathon.status}
-                        onDetailClick={() => {}}
-                        onTeamSearchClick={() => {
-                          setPopupOpen(false)
-                          setTimeout(() => {
-                            setSelectedHackathon(hackathon.name)
-                            setPopupOpen(true)
-                          }, 0)
-                        }}
-                      />
-                    </CarouselItem>
-                  ))}
-                </CarouselContent>
-                <CarouselPrevious />
-                <CarouselNext />
-              </Carousel>
-            )
-          })()}
+          {loading ? (
+            <div className='py-8 text-center text-gray-500'>読み込み中...</div>
+          ) : error ? (
+            <div className='py-8 text-center text-red-500'>{error}</div>
+          ) : !hackathons.length ? (
+            <div className='py-8 text-center text-gray-500'>おすすめイベントがありません</div>
+          ) : (
+            <Carousel className='w-full'>
+              <CarouselContent>
+                {hackathons.map((hackathon) => (
+                  <CarouselItem key={hackathon.id} className='basis-1/1 md:basis-2/3 lg:basis-1/2 p-2'>
+                    <RecommendedHackathonCard
+                      name={hackathon.name}
+                      bannerUrl={hackathon.banner_url || '/default.png'}
+                      description={hackathon.description}
+                      participants={hackathon.max_participants}
+                      status={hackathon.status === 'upcoming' ? '募集中' : hackathon.status}
+                      onDetailClick={() => {}}
+                      onTeamSearchClick={() => {
+                        setPopupOpen(false)
+                        setTimeout(() => {
+                          setSelectedHackathon(hackathon.name)
+                          setPopupOpen(true)
+                        }, 0)
+                      }}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          )}
         </div>
       </div>
       <MatchingPopup
