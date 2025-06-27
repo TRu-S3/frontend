@@ -71,7 +71,7 @@ export default function SidebarLeft() {
   }
 
   return (
-    <aside className='hidden lg:flex flex-col border-r bg-gradient-to-b from-slate-50 to-white h-[calc(100vh-56px)] max-h-[calc(100vh-56px)] min-w-[280px] w-full md:w-[340px]'>
+    <aside className='hidden lg:flex flex-col border-r bg-gradient-to-b from-slate-50 to-white h-[calc(100vh-56px)] max-h-[calc(100vh-56px)] w-full'>
       {/* ヘッダー */}
       <div className='p-6 border-b border-gray-200 bg-white/80 backdrop-blur-sm'>
         <h2 className='font-bold text-xl text-gray-800 tracking-tight'>AI チャット</h2>

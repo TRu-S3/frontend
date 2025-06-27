@@ -1,5 +1,6 @@
 import { initializeApp, getApps } from 'firebase/app'
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from 'firebase/auth'
+import { usersApi } from '@/lib/api/users'
 
 const firebaseConfig = {
   apiKey: "AIzaSyCSEyLh1n3Hcy1Hj5kibunBjUgZrRMoUhI",
@@ -20,6 +21,10 @@ export const signInWithGoogle = async () => {
   try {
     const result = await signInWithPopup(auth, googleProvider)
     const idToken = await result.user.getIdToken()
+    
+    // バックエンドにユーザー情報を送信
+    await syncUserWithBackend(result.user)
+    
     return { user: result.user, idToken }
   } catch (error) {
     console.error('Firebase Google sign in error:', error)
@@ -27,10 +32,47 @@ export const signInWithGoogle = async () => {
   }
 }
 
+// バックエンドとユーザー情報を同期
+export const syncUserWithBackend = async (firebaseUser: {
+  displayName?: string | null
+  email?: string | null
+  photoURL?: string | null
+}) => {
+  try {
+    console.log('🔄 バックエンドとユーザー情報を同期中...')
+    
+    // emailは必須なのでチェック
+    if (!firebaseUser.email) {
+      throw new Error('Email is required for user sync')
+    }
+    
+    const userData = {
+      name: firebaseUser.displayName || 'Unknown User',
+      gmail: firebaseUser.email,
+      icon_url: firebaseUser.photoURL || undefined
+    }
+    
+    const backendUser = await usersApi.findOrCreate(userData)
+    
+    console.log('✅ バックエンドとの同期完了:', backendUser)
+    return backendUser
+  } catch (error) {
+    console.error('❌ バックエンドとの同期に失敗:', error)
+    // ログイン自体は成功させる（バックエンドエラーでログインが失敗しないように）
+    return null
+  }
+}
+
 // ログアウト機能
 export const firebaseSignOut = async () => {
   try {
     await signOut(auth)
+    
+    // localStorageからトークンをクリア
+    const { clearIdToken } = await import('@/lib/auth-token')
+    clearIdToken()
+    
+    console.log('✅ ログアウト完了')
   } catch (error) {
     console.error('Firebase sign out error:', error)
     throw error

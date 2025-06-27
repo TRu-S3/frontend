@@ -4,45 +4,36 @@ import React, { useState } from 'react'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
-import { Tag } from '@/components/ui/tag'
-import { Heart, Github, User, Star, BookmarkX } from 'lucide-react'
+import { Star, User, BookmarkX, Loader2 } from 'lucide-react'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { useBookmarks } from '@/hooks/useBookmarks'
 
-interface BookmarkedUser {
-  id: string
-  name: string
-  bio: string
-  avatar?: string
-  skills: string[]
-  hackathonCount: number
-  contributions: number
-  repositories: number
-  languages: string[]
-  location?: string
-  githubUrl?: string
-  addedAt: Date
-}
+export const BookmarkClient = () => {
+  const { user: currentUser, loading: userLoading } = useCurrentUser()
+  const { bookmarkedUsers, loading: bookmarksLoading, error, removeBookmark } = useBookmarks({ 
+    userId: currentUser?.id,
+    autoFetch: true 
+  })
+  const [sortBy, setSortBy] = useState<'recent' | 'name' | 'created_at'>('created_at')
 
-interface BookmarkClientProps {
-  initialBookmarkedUsers: BookmarkedUser[]
-}
 
-export const BookmarkClient = ({ initialBookmarkedUsers }: BookmarkClientProps) => {
-  const [bookmarkedUsers, setBookmarkedUsers] = useState<BookmarkedUser[]>(initialBookmarkedUsers)
-  const [sortBy, setSortBy] = useState<'recent' | 'name' | 'contributions'>('recent')
-
-  const removeBookmark = (userId: string) => {
-    setBookmarkedUsers((prev) => prev.filter((user) => user.id !== userId))
+  const handleRemoveBookmark = async (userId: number) => {
+    if (!currentUser) return
+    
+    try {
+      await removeBookmark(userId)
+    } catch (error) {
+      console.error('Failed to remove bookmark:', error)
+    }
   }
 
   const sortedUsers = [...bookmarkedUsers].sort((a, b) => {
     switch (sortBy) {
       case 'name':
         return a.name.localeCompare(b.name)
-      case 'contributions':
-        return b.contributions - a.contributions
-      case 'recent':
+      case 'created_at':
       default:
-        return b.addedAt.getTime() - a.addedAt.getTime()
+        return new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
     }
   })
 
@@ -53,12 +44,39 @@ export const BookmarkClient = ({ initialBookmarkedUsers }: BookmarkClientProps) 
       .join('')
   }
 
-  const formatDate = (date: Date) => {
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString)
     return new Intl.DateTimeFormat('ja-JP', {
       year: 'numeric',
       month: 'short',
       day: 'numeric',
     }).format(date)
+  }
+
+  // ローディング状態
+  if (userLoading || bookmarksLoading) {
+    return (
+      <div className='min-h-screen bg-slate-50 flex items-center justify-center'>
+        <div className='flex items-center gap-2'>
+          <Loader2 className='w-6 h-6 animate-spin' />
+          <span>ブックマークを読み込み中...</span>
+        </div>
+      </div>
+    )
+  }
+
+  // エラー状態
+  if (error) {
+    return (
+      <div className='min-h-screen bg-slate-50 flex items-center justify-center'>
+        <div className='text-center'>
+          <div className='text-red-500 mb-2'>{error}</div>
+          <Button onClick={() => window.location.reload()}>
+            再読み込み
+          </Button>
+        </div>
+      </div>
+    )
   }
 
   return (
@@ -68,7 +86,7 @@ export const BookmarkClient = ({ initialBookmarkedUsers }: BookmarkClientProps) 
         <div className='max-w-4xl mx-auto px-6 py-4'>
           <div className='flex items-center justify-between'>
             <div className='flex items-center gap-3'>
-              <Heart className='w-6 h-6 text-red-500 fill-current' />
+              <Star className='w-6 h-6 text-yellow-500 fill-current' />
               <h1 className='text-2xl font-bold text-gray-900'>ブックマーク</h1>
               <span className='bg-gray-100 text-gray-600 px-3 py-1 rounded-full text-sm font-medium'>
                 {bookmarkedUsers.length}人
@@ -84,9 +102,8 @@ export const BookmarkClient = ({ initialBookmarkedUsers }: BookmarkClientProps) 
                 onChange={(e) => setSortBy(e.target.value as typeof sortBy)}
                 className='px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white'
               >
-                <option value='recent'>追加日時</option>
+                <option value='created_at'>追加日時</option>
                 <option value='name'>名前</option>
-                <option value='contributions'>コントリビューション数</option>
               </select>
             </div>
           </div>
@@ -97,7 +114,7 @@ export const BookmarkClient = ({ initialBookmarkedUsers }: BookmarkClientProps) 
       <div className='max-w-4xl mx-auto px-6 py-8'>
         {bookmarkedUsers.length === 0 ? (
           <div className='text-center py-16'>
-            <Heart className='w-16 h-16 text-gray-300 mx-auto mb-4' />
+            <Star className='w-16 h-16 text-gray-300 mx-auto mb-4' />
             <h2 className='text-xl font-semibold text-gray-600 mb-2'>
               ブックマークしたユーザーがいません
             </h2>
@@ -116,8 +133,8 @@ export const BookmarkClient = ({ initialBookmarkedUsers }: BookmarkClientProps) 
                   <div className='flex items-start gap-4'>
                     {/* アバター */}
                     <Avatar className='w-14 h-14 border-2 border-gray-100'>
-                      {user.avatar ? (
-                        <AvatarImage src={user.avatar} alt={user.name} />
+                      {user.icon_url ? (
+                        <AvatarImage src={user.icon_url} alt={user.name} />
                       ) : (
                         <AvatarFallback className='bg-gradient-to-br from-blue-500 to-purple-600 text-white font-semibold'>
                           {getInitials(user.name)}
@@ -131,81 +148,40 @@ export const BookmarkClient = ({ initialBookmarkedUsers }: BookmarkClientProps) 
                         <div>
                           <h3 className='text-lg font-semibold text-gray-900 mb-1'>{user.name}</h3>
                           <div className='flex items-center gap-4 text-sm text-gray-500 mb-2'>
-                            {user.location && (
-                              <span className='flex items-center gap-1'>
-                                <User className='w-4 h-4' />
-                                {user.location}
-                              </span>
-                            )}
                             <span className='flex items-center gap-1'>
-                              <Star className='w-4 h-4' />
-                              ハッカソン {user.hackathonCount}回
+                              <User className='w-4 h-4' />
+                              {user.gmail}
                             </span>
-                            <span>追加: {formatDate(user.addedAt)}</span>
+                            <span>追加: {formatDate(user.created_at)}</span>
                           </div>
                         </div>
                         <Button
                           variant='ghost'
                           size='sm'
-                          onClick={() => removeBookmark(user.id)}
+                          onClick={() => handleRemoveBookmark(user.id)}
                           className='text-red-500 hover:text-red-700 hover:bg-red-50'
                         >
                           <BookmarkX className='w-4 h-4' />
                         </Button>
                       </div>
 
-                      <p className='text-gray-700 mb-4 leading-relaxed'>{user.bio}</p>
-
-                      {/* スキルタグ */}
-                      <div className='flex flex-wrap gap-2 mb-4'>
-                        {user.skills.map((skill, index) => (
-                          <Tag
-                            key={index}
-                            variant='secondary'
-                            className='bg-blue-50 text-blue-700 border-blue-200'
-                          >
-                            {skill}
-                          </Tag>
-                        ))}
+                      <div className='text-gray-700 mb-4'>
+                        <p>登録日: {formatDate(user.created_at)}</p>
+                        {user.updated_at && user.updated_at !== user.created_at && (
+                          <p className='text-sm text-gray-500'>更新日: {formatDate(user.updated_at)}</p>
+                        )}
                       </div>
 
-                      {/* 統計情報 */}
+                      {/* 連絡先情報 */}
                       <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-6 text-sm'>
-                          <div className='flex items-center gap-2'>
-                            <Github className='w-4 h-4 text-gray-500' />
-                            <span className='text-gray-600'>
-                              <span className='font-semibold text-gray-900'>
-                                {user.repositories}
-                              </span>{' '}
-                              リポジトリ
-                            </span>
-                          </div>
-                          <div className='text-gray-600'>
-                            <span className='font-semibold text-gray-900'>
-                              {user.contributions.toLocaleString()}
-                            </span>{' '}
-                            コントリビューション
-                          </div>
-                          <div className='flex items-center gap-2'>
-                            <span className='text-gray-600'>主要言語:</span>
-                            <div className='flex gap-1'>
-                              {user.languages.slice(0, 3).map((lang, index) => (
-                                <Tag key={index} variant='outline' className='text-xs px-2 py-1'>
-                                  {lang}
-                                </Tag>
-                              ))}
-                            </div>
-                          </div>
+                        <div className='flex items-center gap-4 text-sm text-gray-600'>
+                          <span>Gmail: {user.gmail}</span>
                         </div>
-                        {user.githubUrl && (
-                          <Button variant='outline' size='sm' asChild className='hover:bg-gray-50'>
-                            <a href={user.githubUrl} target='_blank' rel='noopener noreferrer'>
-                              <Github className='w-4 h-4 mr-2' />
-                              GitHub
-                            </a>
+                        <div className='flex gap-2'>
+                          <Button variant='outline' size='sm' className='hover:bg-gray-50'>
+                            プロフィール表示
                           </Button>
-                        )}
+                        </div>
                       </div>
                     </div>
                   </div>
