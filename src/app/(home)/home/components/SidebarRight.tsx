@@ -4,13 +4,22 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Bell, Star, Plus, Mail, Users } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
-import Image from 'next/image'
 import MatchingPopup from './MatchingPopup'
 import React, { useState } from 'react'
+import RecommendedHackathonCard from './RecommendedHackathonCard'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel'
+import { useHackathons } from '@/hooks/useHackathons'
 
 export default function SidebarRight() {
   const [popupOpen, setPopupOpen] = useState(false)
   const [selectedHackathon, setSelectedHackathon] = useState<string | undefined>(undefined)
+  const { hackathons, loading, error } = useHackathons()
 
   const recommendedHackathons = [
     {
@@ -97,67 +106,44 @@ export default function SidebarRight() {
             <div className='font-bold text-gray-800'>AIおすすめイベント</div>
           </div>
         </div>
-
-        <Card className='hover:shadow-lg transition-all duration-200'>
-          <CardContent className=''>
-            <div className='flex items-center gap-2 mb-2'>
-              <div className='w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center'>
-                <span className='text-white text-sm font-bold'>Z</span>
-              </div>
-              <div className='font-semibold text-sm text-gray-800'>Zenn AI Agent Hackathon</div>
-            </div>
-
-            {/* ハッカソン画像 */}
-            <div className='mb-3'>
-              <Image
-                src='https://static.zenn.studio/permanent/hackathon/google-cloud-japan-ai-hackathon-vol2/header_v2.png'
-                alt='AI Agent Hackathon'
-                className='w-full h-32 object-cover rounded-lg border-2'
-                width={800}
-                height={100}
-              />
-            </div>
-
-            <div className='text-xs text-gray-600 leading-relaxed'>
-              AIエージェント開発に特化したハッカソンです。
-              <br />
-              最新のAI技術を学びながら、革新的なプロダクトを作りませんか？
-            </div>
-
-            <div className='flex items-center justify-between mb-3'>
-              <div className='flex items-center gap-2 text-xs text-gray-600'>
-                <Users className='w-3 h-3' />
-                <span>参加者: 150名</span>
-              </div>
-              <div className='text-xs font-medium text-green-600 bg-green-100 px-2 py-1 rounded-full'>
-                募集中
-              </div>
-            </div>
-
-            <div className='flex flex-col gap-2'>
-              <Button
-                size='sm'
-                className='w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium shadow-md hover:shadow-lg transition-all duration-200'
-              >
-                詳細を見る
-              </Button>
-              <Button
-                size='sm'
-                variant='outline'
-                className='w-full border-blue-200 text-blue-600 hover:bg-blue-50 hover:border-blue-300 transition-all duration-200'
-                onClick={() => {
-                  setPopupOpen(false)
-                  setTimeout(() => {
-                    setSelectedHackathon('Zenn AI Agent Hackathon')
-                    setPopupOpen(true)
-                  }, 0)
-                }}
-              >
-                このハッカソンでチームを探す
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <div className='relative'>
+          {loading ? (
+            <div className='py-8 text-center text-gray-500'>読み込み中...</div>
+          ) : error ? (
+            <div className='py-8 text-center text-red-500'>{error}</div>
+          ) : !hackathons.length ? (
+            <div className='py-8 text-center text-gray-500'>おすすめイベントがありません</div>
+          ) : (
+            <Carousel className='w-full'>
+              <CarouselContent>
+                {hackathons.map((hackathon) => (
+                  <CarouselItem
+                    key={hackathon.id}
+                    className='basis-1/1 md:basis-2/3 lg:basis-1/2 p-2'
+                  >
+                    <RecommendedHackathonCard
+                      name={hackathon.name}
+                      bannerUrl={hackathon.banner_url || '/default.png'}
+                      description={hackathon.description}
+                      participants={hackathon.max_participants}
+                      status={hackathon.status === 'upcoming' ? '募集中' : hackathon.status}
+                      onDetailClick={() => {}}
+                      onTeamSearchClick={() => {
+                        setPopupOpen(false)
+                        setTimeout(() => {
+                          setSelectedHackathon(hackathon.name)
+                          setPopupOpen(true)
+                        }, 0)
+                      }}
+                    />
+                  </CarouselItem>
+                ))}
+              </CarouselContent>
+              <CarouselPrevious />
+              <CarouselNext />
+            </Carousel>
+          )}
+        </div>
       </div>
       <MatchingPopup
         trigger={<></>}
