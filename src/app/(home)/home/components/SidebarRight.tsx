@@ -7,13 +7,19 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import MatchingPopup from './MatchingPopup'
 import React, { useState } from 'react'
 import RecommendedHackathonCard from './RecommendedHackathonCard'
-import { Carousel, CarouselContent, CarouselItem, CarouselNext, CarouselPrevious } from '@/components/ui/carousel'
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from '@/components/ui/carousel'
 import { useHackathons } from '@/hooks/useHackathons'
 
 export default function SidebarRight() {
   const [popupOpen, setPopupOpen] = useState(false)
   const [selectedHackathon, setSelectedHackathon] = useState<string | undefined>(undefined)
-  const { hackathons, loading, error } = useHackathons();
+  const { hackathons, loading, error } = useHackathons()
 
   const recommendedHackathons = [
     {
@@ -111,7 +117,10 @@ export default function SidebarRight() {
             <Carousel className='w-full'>
               <CarouselContent>
                 {hackathons.map((hackathon) => (
-                  <CarouselItem key={hackathon.id} className='basis-1/1 md:basis-2/3 lg:basis-1/2 p-2'>
+                  <CarouselItem
+                    key={hackathon.id}
+                    className='basis-1/1 md:basis-2/3 lg:basis-1/2 p-2'
+                  >
                     <RecommendedHackathonCard
                       name={hackathon.name}
                       bannerUrl={hackathon.banner_url || '/default.png'}
