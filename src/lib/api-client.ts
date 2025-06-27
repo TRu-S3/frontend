@@ -2,6 +2,9 @@
 
 import { getIdToken } from './auth-token'
 
+// バックエンドのベースURL
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'https://backend-696136807010.asia-northeast1.run.app'
+
 // APIリクエストの設定型
 interface ApiRequestConfig extends RequestInit {
   endpoint: string
@@ -33,36 +36,60 @@ export const apiClient = {
       ...(headers as Record<string, string>),
     }
 
-    // 認証が必要な場合はトークンを追加
+    // 認証が必要な場合のみトークンを追加
     if (requireAuth) {
-      const tokenStartTime = performance.now()
-      const idToken = await getIdToken()
-      const tokenEndTime = performance.now()
-      const tokenElapsedTime = Math.round(tokenEndTime - tokenStartTime)
+      try {
+        const idToken = await getIdToken()
 
-      if (idToken) {
-        requestHeaders.Authorization = `Bearer ${idToken}`
-        console.log(`🔐 APIリクエストのためのIDトークン取得完了（所要時間: ${tokenElapsedTime}ms）`)
-      } else {
-        console.warn(`⚠️ IDトークンの取得に失敗しました（所要時間: ${tokenElapsedTime}ms）`)
+        if (idToken) {
+          requestHeaders.Authorization = `Bearer ${idToken}`
+        } else {
+          throw new ApiError(401, 'Unauthorized', 'IDトークンの取得に失敗しました')
+        }
+      } catch (error) {
+        console.error('Token acquisition error:', error)
+        throw new ApiError(401, 'Unauthorized', 'IDトークンの取得に失敗しました')
       }
     }
 
     // APIリクエストを実行
-    const response = await fetch(endpoint, {
-      ...init,
-      headers: requestHeaders,
-    })
-
-    let data: T
+    const fullUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`
+    
+    let response: Response
     try {
-      data = await response.json()
-    } catch {
-      data = null as T
+      response = await fetch(fullUrl, {
+        ...init,
+        headers: requestHeaders,
+      })
+    } catch (error) {
+      console.error('Network Error:', error)
+      throw new ApiError(0, 'Network Error', `Failed to connect to ${fullUrl}: ${error}`)
     }
 
+    // エラーチェックを先にする
     if (!response.ok) {
-      throw new ApiError(response.status, response.statusText, data as string)
+      let errorText = ''
+      try {
+        errorText = await response.text()
+      } catch (e) {
+        errorText = 'Could not read error response'
+      }
+      let errorMessage = `API Error: ${response.status} ${response.statusText}`
+      if (errorText) {
+        errorMessage += ` - ${errorText}`
+      }
+      console.error(`API Error (${response.status}) at ${fullUrl}: ${errorMessage}`)
+      throw new ApiError(response.status, response.statusText, errorMessage)
+    }
+
+    // 成功の場合のみパース
+    let data: T
+    try {
+      const textResponse = await response.text()
+      data = textResponse ? JSON.parse(textResponse) : null as T
+    } catch (parseError) {
+      console.error('Failed to parse JSON response:', parseError)
+      throw new ApiError(response.status, 'JSON Parse Error', `Failed to parse response: ${parseError}`)
     }
 
     return {
