@@ -15,18 +15,19 @@ export default async function Page() {
   return (
     <div className='min-h-screen bg-white flex flex-col'>
       <main
-        className='flex-1 flex flex-row bg-slate-200 min-h-0 px-[32px]'
+        className='flex-1 flex flex-row bg-slate-200 min-h-0 px-[32px] justify-center'
         style={{ minHeight: 'calc(100vh - 56px)' }}
       >
-        <div className='w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0'>
+        {/* サイドバー左：固定幅 */}
+        <div className='w-[300px] flex-shrink-0'>
           <SidebarLeft />
         </div>
-        {/* メインコンテンツ：2/4 */}
-        <div className='flex-1 min-w-[240px] bg-white'>
+        {/* メインコンテンツ：固定幅（Twitterライク） */}
+        <div className='min-w-[600px] bg-white flex-shrink-0'>
           <MainContent />
         </div>
-        {/* サイドバー右：1/4 */}
-        <div className='w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0'>
+        {/* サイドバー右：固定幅 */}
+        <div className='w-[300px] flex-shrink-0'>
           <SidebarRight />
         </div>
       </main>

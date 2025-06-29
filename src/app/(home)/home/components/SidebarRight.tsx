@@ -75,7 +75,7 @@ export default function SidebarRight() {
   }, [])
 
   return (
-    <aside className='hidden lg:flex flex-col border-l bg-gradient-to-b from-white/80 to-slate-50/80 backdrop-blur-sm h-full border-white/30'>
+    <aside className='hidden lg:flex flex-col border-l bg-gradient-to-b from-white/80 to-slate-50/80 backdrop-blur-sm h-full border-white/30 w-full'>
       <div className='p-6 border-b flex flex-col gap-3'>
         <Button
           variant='outline'
