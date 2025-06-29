@@ -10,7 +10,6 @@ import {
   Shield,
   Sparkles,
   CheckCircle,
-  Star,
   Database,
   MessageSquare,
   Clock,

@@ -1,14 +1,12 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
 import UserCard from '@/components/user/UserCard'
-import { contestsApi, Contest } from '@/lib/api/contests'
-import RecruitingHackathonCard from './RecruitingHackathonCard'
 import { useUserContests } from '@/hooks/useUserContests'
 import UserContestsList from './UserContestsList'
 
