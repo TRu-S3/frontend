@@ -11,6 +11,7 @@ const nextConfig: NextConfig = {
       'atnd.org',
       'efc.fukuoka.jp',
       's.yimg.jp',
+      'storage.googleapis.com',
     ],
   },
 }
