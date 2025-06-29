@@ -9,7 +9,7 @@ export default function Footer() {
                 <div className='w-8 h-8 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center'>
                   <Users className='w-5 h-5 text-white' />
                 </div>
-                <span className='text-xl font-bold text-gray-900'>SupaMatch</span>
+                <span className='text-xl font-bold text-gray-900'>UltraSoulMatch.ai</span>
               </div>
               <p className='text-gray-600 mb-4'>
                 スマートな技術でエンジニア同士の最適なマッチングを実現する次世代プラットフォーム
@@ -107,7 +107,7 @@ export default function Footer() {
           </div>
 
           <div className='border-t border-gray-200 mt-12 pt-8 text-center text-gray-600'>
-            <p>&copy; 2025 SupaMatch.ai All rights reserved.</p>
+            <p>&copy; 2025 UltraSoulMatch.ai All rights reserved.</p>
           </div>
         </div>
       </footer>
