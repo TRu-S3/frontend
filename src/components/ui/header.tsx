@@ -47,13 +47,13 @@ export default function Header({ session }: HeaderProps) {
             {session ? (
               <Link href='/home'>
                 <span className='text-2xl font-bold text-gray-900 tracking-tight'>
-                  SupaMatch.ai
+                  UltraSoulMatch.ai
                 </span>
               </Link>
             ) : (
               <Link href='/'>
                 <span className='text-2xl font-bold text-gray-900 tracking-tight'>
-                  SupaMatch.ai
+                  UltraSoulMatch.ai
                 </span>
               </Link>
             )}

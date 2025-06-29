@@ -232,7 +232,7 @@ export default function Page() {
         <div className='max-w-7xl mx-auto'>
           <div className='text-center mb-16'>
             <h2 className='text-4xl md:text-5xl font-bold text-gray-900 mb-4'>
-              なぜSupaMatch.aiなのか
+              なぜUltraSoulMatch.aiなのか
             </h2>
             <p className='text-xl text-gray-600'>従来のマッチングサービスを超える価値</p>
           </div>
