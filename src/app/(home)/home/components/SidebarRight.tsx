@@ -7,6 +7,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import MatchingPopup from './MatchingPopup'
 import ComingSoonPopup from '@/components/ui/ComingSoonPopup'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import RecommendedHackathonCard from './RecommendedHackathonCard'
 import {
   Carousel,
