@@ -77,9 +77,6 @@ export default function MainContent() {
           <TabsTrigger value='wanted' className='flex-1'>
             求めているユーザー
           </TabsTrigger>
-          <TabsTrigger value='generation' className='flex-1'>
-            同世代のユーザー
-          </TabsTrigger>
         </TabsList>
         <TabsContent value='similar'>
           <div className='flex items-center justify-center gap-4 mt-6'>
