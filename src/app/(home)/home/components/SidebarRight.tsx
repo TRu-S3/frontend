@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Bell, Star, Plus, Mail, Users } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import MatchingPopup from './MatchingPopup'
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import RecommendedHackathonCard from './RecommendedHackathonCard'
 import {
   Carousel,
@@ -21,13 +21,14 @@ export default function SidebarRight() {
   const [selectedHackathon, setSelectedHackathon] = useState<string | undefined>(undefined)
   const { hackathons, loading, error } = useHackathons()
 
-  const recommendedHackathons = [
-    {
-      name: 'Zenn AI Agent Hackathon',
-      url: 'https://static.zenn.studio/permanent/hackathon/google-cloud-japan-ai-hackathon-vol2/header_v2.png',
-    },
-    // 今後ここに追加可能
-  ]
+  // バックエンドのハッカソンデータをMatchingPopup用の形式に変換
+  const recommendedHackathons = useMemo(() => {
+    return hackathons.map((hackathon) => ({
+      name: hackathon.name,
+      url: hackathon.banner_url || '/default.png',
+      description: hackathon.description,
+    }))
+  }, [hackathons])
 
   return (
     <aside className='hidden lg:flex flex-col border-l bg-gradient-to-b from-white/80 to-slate-50/80 backdrop-blur-sm h-full border-white/30'>
