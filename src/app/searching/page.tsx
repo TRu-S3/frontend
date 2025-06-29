@@ -1,23 +1,15 @@
 'use client'
-import React, { useEffect } from 'react'
+import React, { useEffect, useRef, useCallback } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import { AnimatedProgress } from '@/app/searching/animated-progress'
 
 export default function Searching() {
   const router = useRouter()
   const searchParams = useSearchParams()
+  const hasExecutedRef = useRef(false)
 
-  useEffect(() => {
-    const url = searchParams.get('url')
-    
-    if (url) {
-      console.log('GitHub Profile URL:', url)
-      
-      // ai-agentバックエンドAPIを呼び出し（一度だけ実行）
-      let hasExecuted = false
-      const callAiAgent = async () => {
-        if (hasExecuted) return
-        hasExecuted = true
+  // ai-agentバックエンドAPIを呼び出し
+  const callAiAgent = useCallback(async (url: string) => {
         try {
           console.log('Calling ai-agent backend with URL:', url)
           
@@ -94,10 +86,16 @@ export default function Searching() {
         } catch (error) {
           console.error('Failed to call AI Agent API:', error)
         }
-      }
-      
-      callAiAgent()
-    } else {
+  }, [])
+
+  useEffect(() => {
+    const url = searchParams.get('url')
+    
+    if (url && !hasExecutedRef.current) {
+      hasExecutedRef.current = true
+      console.log('GitHub Profile URL:', url)
+      callAiAgent(url)
+    } else if (!url) {
       console.log('No URL parameter found')
     }
 
@@ -106,7 +104,7 @@ export default function Searching() {
     }, 25000)
 
     return () => clearTimeout(timer)
-  }, [router, searchParams])
+  }, [router, searchParams, callAiAgent]) 
 
   return (
     <main className='min-h-screen w-full bg-gradient-to-b from-pink-50 via-purple-50 to-blue-50 flex items-center justify-center'>

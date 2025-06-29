@@ -1,8 +1,8 @@
-import { NextRequest, NextResponse } from 'next/server'
+import { NextResponse } from 'next/server'
 
 const AI_AGENT_BASE_URL = 'https://ai-agent-696136807010.asia-northeast1.run.app'
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const response = await fetch(`${AI_AGENT_BASE_URL}/api/workflows/integratedWorkflow/runs`, {
       method: 'GET',
