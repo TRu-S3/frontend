@@ -65,7 +65,7 @@ export default function Page() {
                 <Search className='w-6 h-6 text-gray-400 ml-6' />
                 <input
                   type='text'
-                  placeholder='GitHub、Twitter、ポートフォリオサイトのURL を入力'
+                  placeholder='GitHubのユーザーネームを入力'
                   className='flex-1 bg-transparent border-0 px-6 py-4 text-gray-900 text-lg placeholder-gray-500 focus:outline-none focus:ring-0'
                   onKeyDown={handleUrlSubmit}
                 />
@@ -79,11 +79,6 @@ export default function Page() {
 
           {/* Trust Indicators */}
           <div className='flex flex-wrap justify-center items-center gap-10 opacity-80'>
-            <div className='flex items-center space-x-2'>
-              <Star className='w-5 h-5 text-blue-500' />
-              <span className='text-blue-600 font-bold'>4.9/5</span>
-            </div>
-            <div className='text-blue-600 font-bold'>1,000+ エンジニア</div>
             <div className='text-blue-600 font-bold'>99.9% 稼働率</div>
             <div className='text-blue-600 font-bold'>平均3分でマッチング</div>
           </div>
@@ -180,10 +175,8 @@ export default function Page() {
               <div className='w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6'>
                 <span className='text-2xl font-bold text-white'>1</span>
               </div>
-              <h3 className='text-xl font-bold text-gray-900 mb-4'>URLを入力</h3>
-              <p className='text-gray-600'>
-                GitHubプロフィール、LinkedIn、個人サイトなど、あなたの技術的背景が分かるURLを入力
-              </p>
+              <h3 className='text-xl font-bold text-gray-900 mb-4'>ユーザーネームを入力</h3>
+              <p className='text-gray-600'>GitHubのユーザーネームを入力</p>
             </div>
 
             <div className='text-center'>
@@ -206,24 +199,6 @@ export default function Page() {
               </p>
             </div>
           </div>
-
-          {/* Demo Video Placeholder */}
-          <div className='bg-white rounded-2xl p-12 border border-blue-500/20 text-center shadow-lg'>
-            <div className='w-24 h-24 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center mx-auto mb-6'>
-              <div className='w-0 h-0 border-l-[12px] border-l-white border-t-[8px] border-t-transparent border-b-[8px] border-b-transparent ml-1'></div>
-            </div>
-            <h3 className='text-2xl font-bold text-gray-900 mb-4'>実際の分析プロセスを見る</h3>
-            <p className='text-gray-600 mb-6'>
-              2分間のデモビデオで、分析からマッチングまでの流れを確認できます
-            </p>
-            <Button
-              size='lg'
-              variant='outline'
-              className='border-blue-500/50 text-blue-600 hover:bg-blue-500/10'
-            >
-              デモビデオを再生
-            </Button>
-          </div>
         </div>
       </section>
 
@@ -245,7 +220,9 @@ export default function Page() {
                     <CheckCircle className='w-5 h-5 text-white' />
                   </div>
                   <div>
-                    <h3 className='text-xl font-bold text-gray-900 mb-2'>95%の高精度マッチング</h3>
+                    <h3 className='text-xl font-bold text-gray-900 mb-2'>
+                      Agentによる高精度マッチング
+                    </h3>
                     <p className='text-gray-600'>
                       詳細な分析により、技術的相性から性格的適合性まで総合的に判断
                     </p>
@@ -298,20 +275,26 @@ export default function Page() {
 
             <div className='bg-white rounded-3xl p-8 border border-blue-500/20 shadow-lg'>
               <div className='text-center mb-8'>
-                <h3 className='text-2xl font-bold text-gray-900 mb-4'>今月の成果</h3>
+                <h3 className='text-2xl font-bold text-gray-900 mb-4'>特徴</h3>
               </div>
 
               <div className='grid grid-cols-2 gap-6'>
                 <div className='text-center'>
-                  <div className='text-3xl font-bold text-blue-600 mb-2'>1,247</div>
-                  <div className='text-gray-600'>新規マッチング</div>
+                  <div className='text-xl font-bold text-blue-600 mb-2'>入力は名前やURLだけ</div>
+                  <div className='text-gray-600'>
+                    GitHubのユーザーネームを入力するだけで、自動的にプロフィールを分析します。
+                  </div>
                 </div>
                 <div className='text-center'>
-                  <div className='text-3xl font-bold text-blue-600 mb-2'>89%</div>
-                  <div className='text-gray-600'>満足度</div>
+                  <div className='text-xl font-bold text-blue-600 mb-2'>Agentによるマッチング</div>
+                  <div className='text-gray-600'>
+                    Agentがあなたのプロフィールを分析し、最適なマッチングを行います。
+                  </div>
                 </div>
                 <div className='text-center'>
-                  <div className='text-3xl font-bold text-blue-600 mb-2'>156</div>
+                  <div className='text-xl font-bold text-blue-600 mb-2'>
+                    マッチングは自動で行われます
+                  </div>
                   <div className='text-gray-600'>プロジェクト開始</div>
                 </div>
                 <div className='text-center'>
@@ -355,6 +338,9 @@ export default function Page() {
               <Button
                 className='w-full border-blue-500/50 text-blue-600 hover:bg-blue-500/10'
                 variant='outline'
+                onClick={() => {
+                  router.push('/signin')
+                }}
               >
                 始める
               </Button>
@@ -389,7 +375,12 @@ export default function Page() {
                   詳細な適合性レポート
                 </li>
               </ul>
-              <Button className='w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white'>
+              <Button
+                className='w-full bg-gradient-to-r from-blue-500 to-indigo-600 text-white'
+                onClick={() => {
+                  router.push('/signin')
+                }}
+              >
                 始める
               </Button>
             </div>
@@ -418,6 +409,9 @@ export default function Page() {
               <Button
                 className='w-full border-blue-500/50 text-blue-600 hover:bg-blue-500/10'
                 variant='outline'
+                onClick={() => {
+                  router.push('/signin')
+                }}
               >
                 相談する
               </Button>
@@ -437,6 +431,9 @@ export default function Page() {
             <Button
               size='lg'
               className='bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-400 hover:to-indigo-500 text-lg px-8 py-4 text-white'
+              onClick={() => {
+                router.push('/signin')
+              }}
             >
               無料で始める <ArrowRight className='ml-2 w-5 h-5' />
             </Button>
@@ -444,6 +441,9 @@ export default function Page() {
               variant='outline'
               size='lg'
               className='border-blue-500/50 text-blue-600 hover:bg-blue-500/10 text-lg px-8 py-4'
+              onClick={() => {
+                router.push('/signin')
+              }}
             >
               デモをリクエスト
             </Button>
