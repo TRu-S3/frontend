@@ -65,7 +65,7 @@ export default function Page() {
                 <Search className='w-6 h-6 text-gray-400 ml-6' />
                 <input
                   type='text'
-                  placeholder='GitHub、Twitter、ポートフォリオサイトのURL を入力'
+                  placeholder='GitHubのユーザーネームを入力'
                   className='flex-1 bg-transparent border-0 px-6 py-4 text-gray-900 text-lg placeholder-gray-500 focus:outline-none focus:ring-0'
                   onKeyDown={handleUrlSubmit}
                 />
