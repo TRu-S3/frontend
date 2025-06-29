@@ -9,6 +9,8 @@ import { useCurrentUser } from '@/hooks/useCurrentUser'
 import UserCard from '@/components/user/UserCard'
 import { contestsApi, Contest } from '@/lib/api/contests'
 import RecruitingHackathonCard from './RecruitingHackathonCard'
+import { useUserContests } from '@/hooks/useUserContests'
+import UserContestsList from './UserContestsList'
 
 export default function MainContent() {
   const { user: currentUser, loading: currentUserLoading } = useCurrentUser()
@@ -18,36 +20,14 @@ export default function MainContent() {
     error,
   } = useUsers({ autoFetch: true, filters: { limit: 20 } })
   const [currentIndex, setCurrentIndex] = useState(0)
-  const [myContests, setMyContests] = useState<Contest[]>([])
-  const [userContests, setUserContests] = useState<Contest[]>([])
-  const [showAllContests, setShowAllContests] = useState(false)
 
   const loading = currentUserLoading || usersLoading
-
-  // 自分以外のユーザーをフィルタリング
   const otherUsers = users.filter((user) => user.id !== currentUser?.id)
   const currentDisplayUser = otherUsers[currentIndex]
-
-  useEffect(() => {
-    if (!currentUser) return
-    console.log('currentUser:', currentUser)
-    contestsApi.list({ author_id: currentUser.id }).then((res) => {
-      console.log('自分の募集:', res.contests)
-      setMyContests(res.contests || [])
-    })
-  }, [currentUser])
-
-  useEffect(() => {
-    if (!currentDisplayUser) return
-    contestsApi.list({ author_id: currentDisplayUser.id }).then((res) => {
-      setUserContests(res.contests || [])
-      setShowAllContests(false) // 取得後にリセット
-      console.log('userContests取得:', res.contests)
-    })
-  }, [currentDisplayUser])
+  const userContests = useUserContests(currentDisplayUser?.id)
 
   // レンダリング時にもmyContestsを出力
-  console.log('myContests:', myContests)
+  console.log('myContests:', userContests)
 
   const handlePrev = () =>
     setCurrentIndex((prev) => (prev - 1 + otherUsers.length) % otherUsers.length)
@@ -104,7 +84,6 @@ export default function MainContent() {
           </TabsTrigger>
         </TabsList>
         <TabsContent value='similar'>
-          {/* プロフィールカード＋そのユーザーの募集 */}
           <div className='flex items-center justify-center gap-4 mt-6'>
             <Button
               size='icon'
@@ -117,37 +96,7 @@ export default function MainContent() {
             <div className='w-full max-w-md'>
               {currentDisplayUser && (
                 <UserCard user={currentDisplayUser} showBookmark={true}>
-                  {/* そのユーザーの募集を縦並びで表示（2件まで、3件以上はもっと見る） */}
-                  {userContests.length > 0 && (
-                    <div className='mt-6 space-y-4 relative max-h-[500px] overflow-hidden'>
-                      <div className='font-bold text-gray-700 mb-2'>このユーザーの募集</div>
-                      {(showAllContests ? userContests : userContests.slice(0, 2)).map(
-                        (contest) => (
-                          <RecruitingHackathonCard
-                            key={contest.id}
-                            name={contest.title || 'ハッカソン名'}
-                            registrationDeadline={contest.application_deadline}
-                            message={contest.message}
-                            websiteUrl={contest.website_url}
-                            backend_quota={contest.backend_quota}
-                            frontend_quota={contest.frontend_quota}
-                            ai_quota={contest.ai_quota}
-                          />
-                        )
-                      )}
-                      {userContests.length > 2 && !showAllContests && (
-                        <>
-                          <div className='absolute bottom-0 left-0 w-full h-16 bg-gradient-to-t from-white to-transparent pointer-events-none'></div>
-                          <button
-                            onClick={() => setShowAllContests(true)}
-                            className='absolute bottom-4 left-1/2 -translate-x-1/2 z-10 text-xs bg-white border rounded px-4 py-2 shadow hover:bg-gray-100 cursor-pointer'
-                          >
-                            もっと見る
-                          </button>
-                        </>
-                      )}
-                    </div>
-                  )}
+                  <UserContestsList contests={userContests} />
                 </UserCard>
               )}
             </div>
