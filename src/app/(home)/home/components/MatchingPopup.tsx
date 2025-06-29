@@ -8,6 +8,7 @@ import { Textarea } from '@/components/ui/textarea'
 import { Plus } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { Confetti } from '@/components/ui/confetti'
+import { contestsApi } from '@/lib/api/contests'
 
 /**
  * ハッカソン情報の型だよん
@@ -51,7 +52,8 @@ export default function MatchingPopup({
     hackathonName: string
     ogp: string
     description: string
-    period: string
+    startDate: string
+    endDate: string
     positions: Record<string, number>
     deadline: string
     purpose: string
@@ -68,7 +70,8 @@ export default function MatchingPopup({
     hackathonName: hackathonName || '',
     ogp: '',
     description: '',
-    period: '',
+    startDate: '',
+    endDate: '',
     positions: { front: 0, back: 0, ai: 0, designer: 0, infra: 0, manager: 0 },
     deadline: '',
     purpose: '',
@@ -93,6 +96,7 @@ export default function MatchingPopup({
   const [popupOpen, setPopupOpen] = useState(false)
   const [showAddRoleInput, setShowAddRoleInput] = useState(false)
   const [showCelebration, setShowCelebration] = useState(false)
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
 
   /**
    * 合計人数をメモ化してパフォーマンスを向上させるよん
@@ -155,7 +159,8 @@ export default function MatchingPopup({
           hackathonName: initialHackathonName,
           ogp: selected?.url || '',
           description: selected?.description || '',
-          period: '',
+          startDate: '',
+          endDate: '',
           positions: { front: 0, back: 0, ai: 0, designer: 0, infra: 0, manager: 0 },
           deadline: '',
           purpose: '',
@@ -169,6 +174,9 @@ export default function MatchingPopup({
     }
   }, [initialHackathonName, recommendedHackathons])
 
+  // 必須項目バリデーション
+  const isFormValid = !!form.hackathonName && !!form.description && !!form.deadline
+
   /**
    * フォーム送信時の処理だよん
    * バックエンド送信（コメントアウト中）→モーダルを閉じてエフェクト表示→フォームリセット
@@ -176,24 +184,48 @@ export default function MatchingPopup({
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault()
     setLoading(true)
-    try {
-      // バックエンド連携は一旦コメントアウト
-      // const res = await fetch('/api/matching', { ... })
-      // TODO: バリデーション追加(どこを必須にするのがいいかなぁ。バックエンド含めて要検討。なければそのままで)
-      // if (!form.hackathonName || !form.deadline) {
-      //   throw new Error('必須項目が未入力です')
-      // }
+    setErrorMessage(null)
 
-      if (onOpenChange) {
-        onOpenChange(false)
-      } else {
-        setPopupOpen(false)
+    try {
+      if (!isFormValid) {
+        setErrorMessage('必須項目が未入力です')
+        setLoading(false)
+        return
       }
+
+      // RFC3339形式に変換
+      const startTime = form.startDate ? new Date(form.startDate).toISOString() : undefined
+      const endTime = form.endDate ? new Date(form.endDate).toISOString() : undefined
+      const applicationDeadline = new Date(form.deadline).toISOString()
+
+      const contestData = {
+        title: form.hackathonName,
+        description: form.description,
+        author_id: 1, // TODO: 実際のユーザーIDを取得
+        start_time: startTime || '0001-01-01T00:00:00Z',
+        end_time: endTime || '0001-01-01T00:00:00Z',
+        application_deadline: applicationDeadline,
+        banner_url: form.ogp || undefined,
+        website_url: form.ogp || undefined,
+        status: 'upcoming' as const,
+        purpose: form.purpose,
+        message: form.message,
+        backend_quota: form.positions.back || undefined,
+        frontend_quota: form.positions.front || undefined,
+        ai_quota: form.positions.ai || undefined,
+      }
+
+      await contestsApi.create(contestData)
+
       setShowCelebration(true)
-      resetForm()
+      setTimeout(() => {
+        setPopupOpen(false)
+        if (onOpenChange) onOpenChange(false)
+        resetForm()
+      }, 2000)
     } catch (error) {
-      console.error('送信エラー:', error)
-      // TODO: エラー表示UIを追加
+      console.error('募集投稿エラー:', error)
+      setErrorMessage('募集の投稿に失敗しました。もう一度お試しください。')
     } finally {
       setLoading(false)
     }
@@ -244,7 +276,7 @@ export default function MatchingPopup({
             onChange={(e) => {
               const selected = recommendedHackathons?.find((h) => h.name === e.target.value)
               dispatch({
-                type: 'UPDATE',
+                type: 'SET_ALL',
                 payload: {
                   hackathonName: selected?.name || '',
                   ogp: selected?.url || '',
@@ -261,21 +293,44 @@ export default function MatchingPopup({
             ))}
           </select>
 
-          {/* 選択されたハッカソンの説明を表示 */}
-          {form.description && (
-            <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2'>
-              <p className='text-sm text-blue-800 leading-relaxed'>{form.description}</p>
-            </div>
-          )}
+          {/* description直接入力欄を追加 */}
+          <div className='flex flex-col gap-1'>
+            <label className='font-bold text-sm'>ハッカソン説明</label>
+            <Textarea
+              placeholder='ハッカソンの説明を入力'
+              value={form.description}
+              onChange={(e) =>
+                dispatch({ type: 'UPDATE', payload: { description: e.target.value } })
+              }
+              className='min-h-[60px] w-full'
+            />
+          </div>
 
-          <label className='font-bold text-sm'>ハッカソン実施期間</label>
-          <Input
-            type='text'
-            placeholder='ハッカソン実施期間'
-            value={form.period}
-            onChange={(e) => dispatch({ type: 'UPDATE', payload: { period: e.target.value } })}
-            className='w-full'
-          />
+          {/* 選択されたハッカソンの説明を表示（青いプレビューは削除） */}
+
+          <div className='flex gap-2 items-center'>
+            <div className='flex flex-col flex-1'>
+              <label className='font-bold text-sm'>開始日</label>
+              <Input
+                type='date'
+                value={form.startDate}
+                onChange={(e) =>
+                  dispatch({ type: 'UPDATE', payload: { startDate: e.target.value } })
+                }
+                className='w-full'
+              />
+            </div>
+            <span className='mt-6'>〜</span>
+            <div className='flex flex-col flex-1'>
+              <label className='font-bold text-sm'>終了日</label>
+              <Input
+                type='date'
+                value={form.endDate}
+                onChange={(e) => dispatch({ type: 'UPDATE', payload: { endDate: e.target.value } })}
+                className='w-full'
+              />
+            </div>
+          </div>
         </div>
         <div className='bg-gray-50 border border-gray-200 rounded-lg p-4 mb-2'>
           <div className='flex items-center justify-between mb-2'>
@@ -453,7 +508,7 @@ export default function MatchingPopup({
           <label className='font-bold text-sm'>目的</label>
           <Input
             type='text'
-            placeholder='目的 例: 新しいものを作りたい的な？'
+            placeholder='目的 例: 新しい技術を学びたい／実務経験を積みたい'
             value={form.purpose}
             onChange={(e) => dispatch({ type: 'UPDATE', payload: { purpose: e.target.value } })}
             className='w-full'
@@ -463,19 +518,22 @@ export default function MatchingPopup({
         <div className='flex flex-col gap-1'>
           <label className='font-bold text-sm'>メッセージ</label>
           <Textarea
-            placeholder='ex: バックエンドとフロントエンドの人を募集しています'
+            placeholder='ex: 一緒に開発できる仲間を募集しています！初心者も大歓迎です'
             value={form.message}
             onChange={(e) => dispatch({ type: 'UPDATE', payload: { message: e.target.value } })}
             className='min-h-[120px] w-full'
           />
         </div>
         {/* 募集開始ボタン */}
+        {errorMessage && (
+          <div className='text-red-600 text-sm font-semibold mb-2'>{errorMessage}</div>
+        )}
         <Button
           type='submit'
           className='w-full font-bold mt-2 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white'
           size='default'
           variant='default'
-          disabled={loading}
+          disabled={loading || !isFormValid}
         >
           {loading ? '送信中...' : '募集開始！'}
         </Button>

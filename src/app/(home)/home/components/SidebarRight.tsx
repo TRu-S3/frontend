@@ -1,12 +1,11 @@
 'use client'
 
 import { Button } from '@/components/ui/button'
-import { Card, CardContent } from '@/components/ui/card'
-import { Bell, Star, Plus, Mail, Users } from 'lucide-react'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Mail, Bell, Star, Plus } from 'lucide-react'
 import MatchingPopup from './MatchingPopup'
 import ComingSoonPopup from '@/components/ui/ComingSoonPopup'
-import React, { useMemo, useState } from 'react'
+import ContestDetailPopup from './ContestDetailPopup'
+import React, { useMemo, useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import RecommendedHackathonCard from './RecommendedHackathonCard'
 import {
@@ -17,6 +16,9 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { useHackathons } from '@/hooks/useHackathons'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
+import RecruitingHackathonCard from './RecruitingHackathonCard'
+import { contestsApi, Contest } from '@/lib/api/contests'
 
 export default function SidebarRight() {
   const router = useRouter()
@@ -24,7 +26,13 @@ export default function SidebarRight() {
   const [selectedHackathon, setSelectedHackathon] = useState<string | undefined>(undefined)
   const [comingSoonOpen, setComingSoonOpen] = useState(false)
   const [comingSoonFeature, setComingSoonFeature] = useState('')
+  const [detailPopupOpen, setDetailPopupOpen] = useState(false)
+  const [selectedContest, setSelectedContest] = useState<Contest | null>(null)
   const { hackathons, loading, error } = useHackathons()
+  const { user: currentUser } = useCurrentUser()
+  const [latestContests, setLatestContests] = useState<Contest[]>([])
+  const [contestLoading, setContestLoading] = useState(false)
+  const [contestError, setContestError] = useState<string | null>(null)
 
   // バックエンドのハッカソンデータをMatchingPopup用の形式に変換
   const recommendedHackathons = useMemo(() => {
@@ -35,10 +43,36 @@ export default function SidebarRight() {
     }))
   }, [hackathons])
 
+  // 自分が投稿した募集を除外したおすすめ募集
+  const filteredContests = useMemo(() => {
+    if (!currentUser) return latestContests
+    return latestContests.filter((contest) => contest.author_id !== currentUser.id)
+  }, [latestContests, currentUser])
+
   const handleComingSoon = (featureName: string) => {
     setComingSoonFeature(featureName)
     setComingSoonOpen(true)
   }
+
+  const handleDetailClick = (contest: Contest) => {
+    setSelectedContest(contest)
+    setDetailPopupOpen(true)
+  }
+
+  useEffect(() => {
+    setContestLoading(true)
+    contestsApi
+      .list({ page: 1, limit: 5 })
+      .then((res) => {
+        console.log('API contests:', res.contests)
+        setLatestContests(res.contests || [])
+        setContestError(null)
+      })
+      .catch(() => {
+        setContestError('コンテスト情報の取得に失敗しました')
+      })
+      .finally(() => setContestLoading(false))
+  }, [])
 
   return (
     <aside className='hidden lg:flex flex-col border-l bg-gradient-to-b from-white/80 to-slate-50/80 backdrop-blur-sm h-full border-white/30'>
@@ -83,45 +117,42 @@ export default function SidebarRight() {
           </Button>
         </div>
 
-        {/* ハッカソン情報 */}
-        <Card className='mb-2 hover:shadow-md transition-shadow duration-200'>
-          <CardContent className='flex flex-col gap-3'>
-            <div className='font-bold text-md mb-1 text-gray-800'>Zenn AI Agent Hackathon</div>
-
-            <div className='flex items-start gap-3 mb-3'>
-              <Avatar className='w-10 h-10'>
-                <AvatarImage src='/AI.webp' alt='AI' />
-                <AvatarFallback>Z</AvatarFallback>
-              </Avatar>
-              <div className='flex-1 min-w-0'>
-                {/* ユーザーコメント */}
-                <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mb-3 relative'>
-                  <div className='text-sm text-gray-800 font-medium'>ハッカソン、でませんか？</div>
-                </div>
-
-                {/* 募集人数と残り情報 */}
-                <div className='flex items-center justify-between mb-2'>
-                  <div className='flex items-center gap-1 text-xs text-gray-600'>
-                    <Users className='w-3 h-3' />
-                    <span>2/3名確定</span>
-                  </div>
-                  <div className='text-xs font-medium text-orange-600'>残り1名</div>
-                </div>
-
-                <div className='flex items-center gap-2 text-xs text-gray-600'>
-                  <div className='w-2 h-2 bg-green-500 rounded-full'></div>
-                  <span>募集中（締切：1/10）</span>
-                </div>
-              </div>
-            </div>
-            <Button
-              size='sm'
-              className='w-full bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white font-medium'
-            >
-              詳細を見る（残り2日）
-            </Button>
-          </CardContent>
-        </Card>
+        {/* ハッカソン情報（カルーセル化） */}
+        {contestLoading ? (
+          <div className='py-8 text-center text-gray-500'>読み込み中...</div>
+        ) : contestError ? (
+          <div className='py-8 text-center text-red-500'>{contestError}</div>
+        ) : filteredContests.length > 0 ? (
+          <div className='relative w-full'>
+            <Carousel className='w-full'>
+              <CarouselContent>
+                {filteredContests.map((contest) => {
+                  const cardProps = {
+                    name: contest.title || 'ハッカソン名',
+                    registrationDeadline: contest.application_deadline,
+                    message: contest.message,
+                    websiteUrl: contest.website_url || '',
+                    backend_quota: contest.backend_quota,
+                    frontend_quota: contest.frontend_quota,
+                    ai_quota: contest.ai_quota,
+                    onDetailClick: () => handleDetailClick(contest),
+                  }
+                  return (
+                    <CarouselItem key={contest.id} className='basis-auto p-2 flex justify-center'>
+                      <div className='w-72 max-w-xs'>
+                        <RecruitingHackathonCard {...cardProps} />
+                      </div>
+                    </CarouselItem>
+                  )
+                })}
+              </CarouselContent>
+              <CarouselPrevious className='absolute left-0 top-1/2 -translate-y-1/2 z-10' />
+              <CarouselNext className='absolute right-0 top-1/2 -translate-y-1/2 z-10' />
+            </Carousel>
+          </div>
+        ) : (
+          <div className='py-8 text-center text-gray-500'>現在募集中のハッカソンはありません</div>
+        )}
       </div>
       <div className='p-6'>
         <div className='flex items-center gap-3 mb-3'>
@@ -170,6 +201,8 @@ export default function SidebarRight() {
           )}
         </div>
       </div>
+
+      {/* ポップアップ */}
       <MatchingPopup
         trigger={<></>}
         open={popupOpen}
@@ -177,10 +210,17 @@ export default function SidebarRight() {
         initialHackathonName={selectedHackathon}
         recommendedHackathons={recommendedHackathons}
       />
+
       <ComingSoonPopup
         open={comingSoonOpen}
         onOpenChange={setComingSoonOpen}
         featureName={comingSoonFeature}
+      />
+
+      <ContestDetailPopup
+        contest={selectedContest}
+        isOpen={detailPopupOpen}
+        onClose={() => setDetailPopupOpen(false)}
       />
     </aside>
   )
