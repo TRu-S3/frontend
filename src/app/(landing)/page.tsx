@@ -18,11 +18,12 @@ import {
   CornerDownLeft,
 } from 'lucide-react'
 import { useSession } from 'next-auth/react'
-import { redirect } from 'next/navigation'
+import { redirect, useRouter } from 'next/navigation'
 
 export default function Page() {
-
   const { data: session } = useSession()
+  const router = useRouter()
+
   if (session) {
     redirect('/dashboard')
   }
@@ -31,15 +32,13 @@ export default function Page() {
     if (e.key === 'Enter') {
       const url = (e.target as HTMLInputElement).value
       if (url.trim()) {
-        // Handle URL submission logic here
+        router.push(`/searching?url=${encodeURIComponent(url)}`)
       }
     }
   }
 
   return (
     <div className='min-h-screen bg-gradient-to-br from-white via-blue-50 to-white'>
-
-
       {/* Hero Section */}
       <section className='pt-36 pb-24 px-4 sm:px-6 lg:px-8'>
         <div className='max-w-7xl mx-auto text-center'>
@@ -451,8 +450,6 @@ export default function Page() {
           </div>
         </div>
       </section>
-
-
     </div>
   )
 }

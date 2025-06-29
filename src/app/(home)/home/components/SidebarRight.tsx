@@ -5,6 +5,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { Bell, Star, Plus, Mail, Users } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import MatchingPopup from './MatchingPopup'
+import ComingSoonPopup from '@/components/ui/ComingSoonPopup'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import RecommendedHackathonCard from './RecommendedHackathonCard'
@@ -16,20 +17,29 @@ import {
   CarouselPrevious,
 } from '@/components/ui/carousel'
 import { useHackathons } from '@/hooks/useHackathons'
+import { useRouter } from 'next/navigation'
 
 export default function SidebarRight() {
   const router = useRouter()
   const [popupOpen, setPopupOpen] = useState(false)
   const [selectedHackathon, setSelectedHackathon] = useState<string | undefined>(undefined)
+  const [comingSoonOpen, setComingSoonOpen] = useState(false)
+  const [comingSoonFeature, setComingSoonFeature] = useState('')
   const { hackathons, loading, error } = useHackathons()
 
-  const recommendedHackathons = [
-    {
-      name: 'Zenn AI Agent Hackathon',
-      url: 'https://static.zenn.studio/permanent/hackathon/google-cloud-japan-ai-hackathon-vol2/header_v2.png',
-    },
-    // 今後ここに追加可能
-  ]
+  // バックエンドのハッカソンデータをMatchingPopup用の形式に変換
+  const recommendedHackathons = useMemo(() => {
+    return hackathons.map((hackathon) => ({
+      name: hackathon.name,
+      url: hackathon.banner_url || '/default.png',
+      description: hackathon.description,
+    }))
+  }, [hackathons])
+
+  const handleComingSoon = (featureName: string) => {
+    setComingSoonFeature(featureName)
+    setComingSoonOpen(true)
+  }
 
   return (
     <aside className='hidden lg:flex flex-col border-l bg-gradient-to-b from-white/80 to-slate-50/80 backdrop-blur-sm h-full border-white/30'>
@@ -37,7 +47,7 @@ export default function SidebarRight() {
         <Button
           variant='outline'
           className='w-full flex items-center gap-2 justify-center'
-          onClick={() => router.push('/dm')}
+          onClick={() => handleComingSoon('DM')}
         >
           <Mail className='w-5 h-5' />
           DM
@@ -143,11 +153,8 @@ export default function SidebarRight() {
                       status={hackathon.status === 'upcoming' ? '募集中' : hackathon.status}
                       onDetailClick={() => {}}
                       onTeamSearchClick={() => {
-                        setPopupOpen(false)
-                        setTimeout(() => {
-                          setSelectedHackathon(hackathon.name)
-                          setPopupOpen(true)
-                        }, 0)
+                        setSelectedHackathon(hackathon.name)
+                        setPopupOpen(true)
                       }}
                     />
                   </CarouselItem>
@@ -165,6 +172,11 @@ export default function SidebarRight() {
         onOpenChange={setPopupOpen}
         initialHackathonName={selectedHackathon}
         recommendedHackathons={recommendedHackathons}
+      />
+      <ComingSoonPopup
+        open={comingSoonOpen}
+        onOpenChange={setComingSoonOpen}
+        featureName={comingSoonFeature}
       />
     </aside>
   )

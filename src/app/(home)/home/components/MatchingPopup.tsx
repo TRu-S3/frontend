@@ -15,7 +15,7 @@ import { Confetti } from '@/components/ui/confetti'
 interface HackathonInfo {
   name: string
   url: string
-  description?: string
+  description: string
 }
 
 /**
@@ -50,6 +50,7 @@ export default function MatchingPopup({
   type FormState = {
     hackathonName: string
     ogp: string
+    description: string
     period: string
     positions: Record<string, number>
     deadline: string
@@ -57,7 +58,6 @@ export default function MatchingPopup({
     message: string
     customRoles: string[]
     newRole: string
-    // description?: string // 使う場合は追加
   }
   type FormAction =
     | { type: 'SET_ALL'; payload: Partial<FormState> }
@@ -67,6 +67,7 @@ export default function MatchingPopup({
   const getInitialFormState = (hackathonName?: string): FormState => ({
     hackathonName: hackathonName || '',
     ogp: '',
+    description: '',
     period: '',
     positions: { front: 0, back: 0, ai: 0, designer: 0, infra: 0, manager: 0 },
     deadline: '',
@@ -112,6 +113,7 @@ export default function MatchingPopup({
         payload: {
           hackathonName: initialHackathonName,
           ogp: selected?.url || '',
+          description: selected?.description || '',
         },
       })
     } else {
@@ -152,6 +154,7 @@ export default function MatchingPopup({
         payload: {
           hackathonName: initialHackathonName,
           ogp: selected?.url || '',
+          description: selected?.description || '',
           period: '',
           positions: { front: 0, back: 0, ai: 0, designer: 0, infra: 0, manager: 0 },
           deadline: '',
@@ -245,7 +248,7 @@ export default function MatchingPopup({
                 payload: {
                   hackathonName: selected?.name || '',
                   ogp: selected?.url || '',
-                  // description: selected?.description || '',
+                  description: selected?.description || '',
                 },
               })
             }}
@@ -257,6 +260,14 @@ export default function MatchingPopup({
               </option>
             ))}
           </select>
+
+          {/* 選択されたハッカソンの説明を表示 */}
+          {form.description && (
+            <div className='bg-blue-50 border border-blue-200 rounded-lg p-3 mt-2'>
+              <p className='text-sm text-blue-800 leading-relaxed'>{form.description}</p>
+            </div>
+          )}
+
           <label className='font-bold text-sm'>ハッカソン実施期間</label>
           <Input
             type='text'
