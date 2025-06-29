@@ -71,7 +71,7 @@ export const apiClient = {
       let errorText = ''
       try {
         errorText = await response.text()
-      } catch (e) {
+      } catch {
         errorText = 'Could not read error response'
       }
       let errorMessage = `API Error: ${response.status} ${response.statusText}`
