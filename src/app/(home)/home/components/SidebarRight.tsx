@@ -26,13 +26,14 @@ export default function SidebarRight() {
   const [comingSoonFeature, setComingSoonFeature] = useState('')
   const { hackathons, loading, error } = useHackathons()
 
-  const recommendedHackathons = [
-    {
-      name: 'Zenn AI Agent Hackathon',
-      url: 'https://static.zenn.studio/permanent/hackathon/google-cloud-japan-ai-hackathon-vol2/header_v2.png',
-    },
-    // 今後ここに追加可能
-  ]
+  // バックエンドのハッカソンデータをMatchingPopup用の形式に変換
+  const recommendedHackathons = useMemo(() => {
+    return hackathons.map((hackathon) => ({
+      name: hackathon.name,
+      url: hackathon.banner_url || '/default.png',
+      description: hackathon.description,
+    }))
+  }, [hackathons])
 
   const handleComingSoon = (featureName: string) => {
     setComingSoonFeature(featureName)
