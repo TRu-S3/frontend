@@ -6,6 +6,7 @@ import { Bell, Star, Plus, Mail, Users } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import MatchingPopup from './MatchingPopup'
 import React, { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import RecommendedHackathonCard from './RecommendedHackathonCard'
 import {
   Carousel,
@@ -17,6 +18,7 @@ import {
 import { useHackathons } from '@/hooks/useHackathons'
 
 export default function SidebarRight() {
+  const router = useRouter()
   const [popupOpen, setPopupOpen] = useState(false)
   const [selectedHackathon, setSelectedHackathon] = useState<string | undefined>(undefined)
   const { hackathons, loading, error } = useHackathons()
@@ -32,15 +34,27 @@ export default function SidebarRight() {
   return (
     <aside className='hidden lg:flex flex-col border-l bg-gradient-to-b from-white/80 to-slate-50/80 backdrop-blur-sm h-full border-white/30'>
       <div className='p-6 border-b flex flex-col gap-3'>
-        <Button variant='outline' className='w-full flex items-center gap-2 justify-center'>
+        <Button
+          variant='outline'
+          className='w-full flex items-center gap-2 justify-center'
+          onClick={() => router.push('/dm')}
+        >
           <Mail className='w-5 h-5' />
           DM
         </Button>
-        <Button variant='outline' className='w-full flex items-center gap-2 justify-center'>
+        <Button
+          variant='outline'
+          className='w-full flex items-center gap-2 justify-center'
+          onClick={() => router.push('/notification')}
+        >
           <Bell className='w-5 h-5' />
           通知
         </Button>
-        <Button variant='outline' className='w-full flex items-center gap-2 justify-center'>
+        <Button
+          variant='outline'
+          className='w-full flex items-center gap-2 justify-center'
+          onClick={() => router.push('/bookmark')}
+        >
           <Star className='w-5 h-5 text-yellow-400' />
           ブックマーク
         </Button>
