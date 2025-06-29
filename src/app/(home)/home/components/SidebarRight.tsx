@@ -127,13 +127,15 @@ export default function SidebarRight() {
                       description={hackathon.description}
                       participants={hackathon.max_participants}
                       status={hackathon.status === 'upcoming' ? '募集中' : hackathon.status}
-                      onDetailClick={() => {}}
+                      hackathonUrl={hackathon.website_url}
+                      onDetailClick={() => {
+                        if (hackathon.website_url) {
+                          window.open(hackathon.website_url, '_blank')
+                        }
+                      }}
                       onTeamSearchClick={() => {
-                        setPopupOpen(false)
-                        setTimeout(() => {
-                          setSelectedHackathon(hackathon.name)
-                          setPopupOpen(true)
-                        }, 0)
+                        setSelectedHackathon(hackathon.name)
+                        setPopupOpen(true)
                       }}
                     />
                   </CarouselItem>
