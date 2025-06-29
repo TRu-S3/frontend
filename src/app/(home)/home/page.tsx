@@ -15,7 +15,7 @@ export default async function Page() {
   return (
     <div className='min-h-screen bg-white flex flex-col'>
       <main
-        className='flex-1 flex flex-row bg-slate-200 min-h-0 px-[32px]'
+        className='flex-1 flex flex-row bg-slate-200 min-h-0 px-8 md:px-20 lg:px-32 xl:px-48 2xl:px-64'
         style={{ minHeight: 'calc(100vh - 56px)' }}
       >
         <div className='w-1/4 min-w-[180px] max-w-[340px] flex-shrink-0'>
