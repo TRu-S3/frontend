@@ -3,7 +3,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { User, MoreHorizontal } from 'lucide-react'
+import { User } from 'lucide-react'
 import { User as BackendUser } from '@/lib/api/users'
 import BookmarkButton from '@/components/bookmark/BookmarkButton'
 
@@ -11,9 +11,10 @@ interface UserCardProps {
   user: BackendUser
   showBookmark?: boolean
   onUserClick?: (user: BackendUser) => void
+  children?: React.ReactNode
 }
 
-export const UserCard = ({ user, showBookmark = true, onUserClick }: UserCardProps) => {
+export const UserCard = ({ user, showBookmark = true, onUserClick, children }: UserCardProps) => {
   const getInitials = (name: string) => {
     return name
       .split(' ')
@@ -75,6 +76,7 @@ export const UserCard = ({ user, showBookmark = true, onUserClick }: UserCardPro
             </Button>
           )}
         </div>
+        {children}
       </CardContent>
     </Card>
   )
