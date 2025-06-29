@@ -22,7 +22,7 @@ export default function Searching() {
           console.log('Calling ai-agent backend with URL:', url)
           
           // 1. 実行IDの作成
-          const createRunResponse = await fetch('http://localhost:4111/api/workflows/integratedWorkflow/create-run', {
+          const createRunResponse = await fetch('https://ai-agent-696136807010.asia-northeast1.run.app/api/workflows/integratedWorkflow/create-run', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -38,7 +38,7 @@ export default function Searching() {
           console.log('Run created:', runData)
           
           // 2. ワークフローの開始
-          const response = await fetch(`http://localhost:4111/api/workflows/integratedWorkflow/start?runId=${runData.runId}`, {
+          const response = await fetch(`https://ai-agent-696136807010.asia-northeast1.run.app/api/workflows/integratedWorkflow/start?runId=${runData.runId}`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -64,7 +64,7 @@ export default function Searching() {
                   await new Promise(resolve => setTimeout(resolve, 5000)) // 5秒待機
                   
                   try {
-                    const statusResponse = await fetch(`http://localhost:4111/api/workflows/integratedWorkflow/runs`)
+                    const statusResponse = await fetch(`https://ai-agent-696136807010.asia-northeast1.run.app/api/workflows/integratedWorkflow/runs`)
                     if (statusResponse.ok) {
                       const statusData = await statusResponse.json()
                       const latestRun = statusData.runs?.[0]
