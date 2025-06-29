@@ -4,12 +4,15 @@ import { Input } from '@/components/ui/input'
 import { Send } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import React, { useState, useEffect, useRef } from 'react'
+import { geminiAPI, ChatMessage } from '@/lib/gemini-api'
 
 export default function SidebarLeft() {
   const [input, setInput] = useState('')
   const [messages, setMessages] = useState<
     { text: string; sender: 'user' | 'bot'; options?: string[] }[]
   >([])
+  const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([])
+  const [isLoading, setIsLoading] = useState(false)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
@@ -41,17 +44,46 @@ export default function SidebarLeft() {
     }, 500)
   }
 
-  const handleSend = () => {
-    if (!input.trim()) return
+  const handleSend = async () => {
+    if (!input.trim() || isLoading) return
+
     const userMsg = { text: input, sender: 'user' as const }
     setMessages((prev) => [...prev, userMsg])
     setInput('')
 
-    // ユーザーの入力に応じた応答を生成
-    setTimeout(() => {
-      const response = generateResponse(input)
-      setMessages((prev) => [...prev, { text: response, sender: 'bot' as const }])
-    }, 500)
+    // Gemini APIを使用
+    setIsLoading(true)
+
+    try {
+      // 会話履歴を更新
+      const updatedHistory = [...conversationHistory, { role: 'user' as const, parts: input }]
+      setConversationHistory(updatedHistory)
+
+      // Gemini APIから応答を取得
+      const response = await geminiAPI.generateResponse(input, updatedHistory)
+
+      if (response.error) {
+        console.error('Gemini API error:', response.error)
+      }
+
+      // AI応答を会話履歴に追加
+      const newHistory = [...updatedHistory, { role: 'model' as const, parts: response.text }]
+      setConversationHistory(newHistory)
+
+      // メッセージに追加
+      setMessages((prev) => [...prev, { text: response.text, sender: 'bot' as const }])
+    } catch (error) {
+      console.error('Failed to get AI response:', error)
+      setMessages((prev) => [
+        ...prev,
+        {
+          text: '申し訳ございません。AIチャット機能でエラーが発生しました。',
+          sender: 'bot' as const,
+        },
+      ])
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const generateResponse = (userInput: string): string => {
@@ -96,10 +128,7 @@ export default function SidebarLeft() {
         {
           text: 'プロフィールを充実させる方法についてご案内します！どの部分について詳しく知りたいですか？',
           sender: 'bot' as const,
-          options: [
-            '1️⃣ スキル情報の追加',
-            '2️⃣ 自己紹介文の書き方'
-          ]
+          options: ['1️⃣ スキル情報の追加', '2️⃣ 自己紹介文の書き方'],
         },
       ])
     }, 500)
@@ -268,9 +297,13 @@ export default function SidebarLeft() {
               size='icon'
               className='w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-200'
               onClick={handleSend}
-              disabled={!input.trim()}
+              disabled={!input.trim() || isLoading}
             >
-              <Send className='w-4 h-4 text-white' />
+              {isLoading ? (
+                <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
+              ) : (
+                <Send className='w-4 h-4 text-white' />
+              )}
             </Button>
           </div>
 
