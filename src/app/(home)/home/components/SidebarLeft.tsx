@@ -5,11 +5,27 @@ import { Send } from 'lucide-react'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import React, { useState, useEffect, useRef } from 'react'
 import { geminiAPI, ChatMessage } from '@/lib/gemini-api'
+import { useMatching } from '@/hooks/useMatching'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
+import { useProfile } from '@/hooks/useProfile'
+import ChatUserCard from '@/components/user/ChatUserCard'
 
-export default function SidebarLeft() {
+interface SidebarLeftProps {
+  onUserSelect?: (userId: number) => void
+}
+
+export default function SidebarLeft({ onUserSelect }: SidebarLeftProps) {
   const [input, setInput] = useState('')
+  type UserCardData = {
+    id: number
+    name: string
+    gmail: string
+    icon_url?: string
+    created_at?: string
+    updated_at?: string
+  }
   const [messages, setMessages] = useState<
-    { text: string; sender: 'user' | 'bot'; options?: string[] }[]
+    { text: string; sender: 'user' | 'bot'; options?: string[]; userCards?: UserCardData[] }[]
   >([])
   const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
@@ -25,6 +41,11 @@ export default function SidebarLeft() {
   })
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
+
+  // フック
+  const { user: currentUser, loading: userLoading } = useCurrentUser()
+  const { profile, loading: profileLoading } = useProfile({ userId: currentUser?.id })
+  const { findMatches } = useMatching()
 
   // メッセージが更新されたときに自動スクロール
   useEffect(() => {
@@ -140,7 +161,7 @@ export default function SidebarLeft() {
         setIsLoading(true)
 
         try {
-          const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を800文字程度で作成してください。
+          const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を100文字程度で作成してください。
 
 **収集した情報：**
 - 名前: ${finalAnswers.name || '未回答'}
@@ -196,13 +217,90 @@ export default function SidebarLeft() {
       return
     }
 
+    // --- ここから新しい「似ているユーザー」自動マッチング処理 ---
+    // 入力が「似ている」「マッチング」「相性」「探して」などを含む場合は即時マッチング
+    const lowerInput = userInput.trim().toLowerCase()
+    if (
+      lowerInput.includes('似ている') ||
+      lowerInput.includes('マッチング') ||
+      lowerInput.includes('相性') ||
+      lowerInput.includes('探して')
+    ) {
+      if (userLoading) {
+        setMessages((prev) => [
+          ...prev,
+          { text: 'ログイン情報を取得中です。少々お待ちください。', sender: 'bot' as const },
+        ])
+        return
+      }
+      if (!currentUser) {
+        setMessages((prev) => [
+          ...prev,
+          { text: 'ログインが必要です。まずはログインしてください。', sender: 'bot' as const },
+        ])
+        return
+      }
+      if (profileLoading) {
+        setMessages((prev) => [
+          ...prev,
+          { text: 'プロフィール情報を取得中です。少々お待ちください。', sender: 'bot' as const },
+        ])
+        return
+      }
+      if (!profile) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: 'あなたのプロフィール情報が未設定です。プロフィールを充実させてからマッチングをご利用ください。',
+            sender: 'bot' as const,
+          },
+        ])
+        return
+      }
+      setIsLoading(true)
+      try {
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: 'UltraSoulMatch.aiであなたのプロフィール情報をもとに、似ているユーザーを自動で分析・検索します！',
+            sender: 'bot' as const,
+          },
+        ])
+        const response = await findMatches({ user_id: currentUser.id, limit: 5 })
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: `🔍 **AIマッチング結果**\n\n${response.analysis_summary}\n\n**推奨ユーザー:**`,
+            sender: 'bot' as const,
+            userCards: response.matches.map((m) => ({
+              id: m.user_id,
+              name: m.name,
+              gmail: m.gmail,
+              icon_url: m.icon_url,
+              created_at: '',
+              updated_at: '',
+            })),
+          },
+        ])
+      } catch {
+        setMessages((prev) => [
+          ...prev,
+          { text: '申し訳ございません。マッチングに失敗しました。', sender: 'bot' as const },
+        ])
+      } finally {
+        setIsLoading(false)
+      }
+      return
+    }
+    // --- ここまで新しい「似ているユーザー」自動マッチング処理 ---
+
     // 従来の自己紹介文生成モードの処理
     if (isGeneratingBio) {
       setIsGeneratingBio(false)
       setIsLoading(true)
 
       try {
-        const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を800文字程度で作成してください。
+        const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を100文字程度で作成してください。
 
 ユーザーの入力: "${userInput}"
 
@@ -311,7 +409,7 @@ export default function SidebarLeft() {
     }
 
     if (input.includes('自己紹介') || input.includes('紹介')) {
-      return `💬 **自己紹介文の書き方**\n\n**興味のある分野**\n• 特に興味のある技術\n• やりたいプロジェクト\n• 学びたいスキル\n\n**チームでやりたいこと**\n• リーダーシップ\n• 技術的な貢献\n• デザイン面での貢献\n\n**目標やビジョン**\n• 短期目標（次のハッカソン）\n• 長期目標（キャリア）\n• チームでの役割\n\n**性格・コミュニケーション**\n• 作業スタイル\n• コミュニケーション方法\n• チームワークの考え方\n\n魅力的な自己紹介で、良いチームメンバーを見つけましょう！\n\n🤖 **AIで自己紹介文を自動生成することもできます！**`
+      return `💬 **自己紹介文の書き方**\n\n**興味のある分野**\n• 特に興味のある技術\n• やりたいプロジェクト\n• 学びたいスキル\n\n**チームでやりたいこと**\n• リーダーシップ\n• 技術的な貢献\n• デザイン面での貢献\n\n**目標やビジョン**\n• 短期目標（次のハッカソン）\n• 長期目標（キャリア）\n• チームでの役割\n\n**性格・コミュニケーション**\n• 作業スタイル\n• コミュニケーション方法\n• チームワークの考え方\n\n**連絡先・SNSアカウント**\n• X（Twitter）やGitHub、メールアドレスなど、連絡が取りやすい方法も記載すると親切です！\n\n魅力的な自己紹介で、良いチームメンバーを見つけましょう！\n\n🤖 **AIで自己紹介文を自動生成することもできます！**`
     }
 
     if (input.includes('自動生成') || input.includes('生成')) {
@@ -325,6 +423,28 @@ export default function SidebarLeft() {
       // 最初の質問を表示
       const firstQuestion = bioQuestions[0]
       return `🤖 **自己紹介文自動生成インタビュー**\n\nより良い自己紹介文を作成するために、いくつか質問させていただきます。\n\n${firstQuestion.question}`
+    }
+
+    // マッチング機能の処理
+    if (
+      input.includes('似ている') ||
+      input.includes('マッチング') ||
+      input.includes('相性') ||
+      input.includes('探して')
+    ) {
+      if (userLoading) {
+        return 'ログイン情報を取得中です。少々お待ちください。'
+      }
+      if (!currentUser) {
+        return 'ログインが必要です。まずはログインしてください。'
+      }
+      if (profileLoading) {
+        return 'プロフィール情報を取得中です。少々お待ちください。'
+      }
+      if (!profile) {
+        return 'あなたのプロフィール情報が未設定です。プロフィールを充実させてからマッチングをご利用ください。'
+      }
+      return 'あなたのプロフィール情報をもとに、AIが似ているユーザーを自動で検索します。しばらくお待ちください...'
     }
 
     // デフォルトの応答
@@ -527,6 +647,33 @@ export default function SidebarLeft() {
                       ))}
                     </div>
                   )}
+                  {/* 推奨ユーザーのUserCard表示 */}
+                  {msg.userCards && (
+                    <div className='mt-4 flex flex-col gap-2'>
+                      {msg.userCards.map((user, idx) => {
+                        // 型ガードで安全に値を取り出す
+                        const id = typeof user.id === 'number' ? user.id : idx
+                        const name = typeof user.name === 'string' ? user.name : ''
+                        const gmail = typeof user.gmail === 'string' ? user.gmail : ''
+                        const icon_url =
+                          typeof user.icon_url === 'string' ? user.icon_url : undefined
+                        return (
+                          <ChatUserCard
+                            key={id}
+                            user={{
+                              id,
+                              name,
+                              gmail,
+                              icon_url,
+                              created_at: '',
+                              updated_at: '',
+                            }}
+                            onClick={onUserSelect ? () => onUserSelect(id) : undefined}
+                          />
+                        )
+                      })}
+                    </div>
+                  )}
                 </div>
               </div>
             )
@@ -536,6 +683,13 @@ export default function SidebarLeft() {
 
         {/* 入力エリア */}
         <div className='space-y-3'>
+          {/* マッチング進捗バー */}
+          {isLoading && (
+            <div className='w-full h-2 bg-blue-100 rounded-full overflow-hidden mb-2'>
+              <div className='h-2 bg-gradient-to-r from-blue-400 to-blue-600 animate-pulse w-4/5 rounded-full transition-all duration-500' />
+            </div>
+          )}
+
           {/* インタビュー進行状況 */}
           {bioInterviewData.isInterviewMode && (
             <div className='bg-blue-50 rounded-xl p-3 border border-blue-200'>

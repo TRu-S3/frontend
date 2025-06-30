@@ -10,16 +10,20 @@ import { useBookmarks } from '@/hooks/useBookmarks'
 
 export const BookmarkClient = () => {
   const { user: currentUser, loading: userLoading } = useCurrentUser()
-  const { bookmarkedUsers, loading: bookmarksLoading, error, removeBookmark } = useBookmarks({ 
+  const {
+    bookmarkedUsers,
+    loading: bookmarksLoading,
+    error,
+    removeBookmark,
+  } = useBookmarks({
     userId: currentUser?.id,
-    autoFetch: true 
+    autoFetch: true,
   })
   const [sortBy, setSortBy] = useState<'recent' | 'name' | 'created_at'>('created_at')
 
-
   const handleRemoveBookmark = async (userId: number) => {
     if (!currentUser) return
-    
+
     try {
       await removeBookmark(userId)
     } catch (error) {
@@ -71,9 +75,7 @@ export const BookmarkClient = () => {
       <div className='min-h-screen bg-slate-50 flex items-center justify-center'>
         <div className='text-center'>
           <div className='text-red-500 mb-2'>{error}</div>
-          <Button onClick={() => window.location.reload()}>
-            再読み込み
-          </Button>
+          <Button onClick={() => window.location.reload()}>再読み込み</Button>
         </div>
       </div>
     )
@@ -150,7 +152,6 @@ export const BookmarkClient = () => {
                           <div className='flex items-center gap-4 text-sm text-gray-500 mb-2'>
                             <span className='flex items-center gap-1'>
                               <User className='w-4 h-4' />
-                              {user.gmail}
                             </span>
                             <span>追加: {formatDate(user.created_at)}</span>
                           </div>
@@ -168,15 +169,14 @@ export const BookmarkClient = () => {
                       <div className='text-gray-700 mb-4'>
                         <p>登録日: {formatDate(user.created_at)}</p>
                         {user.updated_at && user.updated_at !== user.created_at && (
-                          <p className='text-sm text-gray-500'>更新日: {formatDate(user.updated_at)}</p>
+                          <p className='text-sm text-gray-500'>
+                            更新日: {formatDate(user.updated_at)}
+                          </p>
                         )}
                       </div>
 
                       {/* 連絡先情報 */}
                       <div className='flex items-center justify-between'>
-                        <div className='flex items-center gap-4 text-sm text-gray-600'>
-                          <span>Gmail: {user.gmail}</span>
-                        </div>
                         <div className='flex gap-2'>
                           <Button variant='outline' size='sm' className='hover:bg-gray-50'>
                             プロフィール表示
