@@ -121,7 +121,7 @@ async function gcsFileUpload(yaml: string) {
   const buffer = Buffer.from(combinedText, 'utf-8')
 
   await bucket.file(filePath).save(buffer, {
-    contentType: 'text/plain',
+    contentType: 'text/plain; charset=utf-8',
   })
 
   return {
