@@ -90,7 +90,6 @@ export default function Searching() {
 
   useEffect(() => {
     const url = searchParams.get('url')
-    
     if (url && !hasExecutedRef.current) {
       hasExecutedRef.current = true
       console.log('GitHub Profile URL:', url)
@@ -98,18 +97,12 @@ export default function Searching() {
     } else if (!url) {
       console.log('No URL parameter found')
     }
-
-    const timer = setTimeout(() => {
-      router.push('/demo')
-    }, 25000)
-
-    return () => clearTimeout(timer)
-  }, [router, searchParams, callAiAgent]) 
+  }, [searchParams, callAiAgent])
 
   return (
     <main className='min-h-screen w-full bg-gradient-to-b from-pink-50 via-purple-50 to-blue-50 flex items-center justify-center'>
       <div className='container mx-auto px-4 -mt-20'>
-        <AnimatedProgress />
+        <AnimatedProgress onComplete={() => router.push('/demo')} />
       </div>
     </main>
   )
