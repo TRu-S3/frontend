@@ -2,11 +2,15 @@
 import React, { useEffect, useState } from 'react'
 import ProfileCard from './components/profile-card'
 import { profiles } from './components/profiles'
+import { POST } from '../api/ai-agent/create-run/route'
 
 type Profile = (typeof profiles)[number]
 
 export default function DemoPage() {
-  const mainProfile = profiles[0]
+  const stored = sessionStorage.getItem('aiResult')
+  console.log("stored", stored)
+  
+  const mainProfile = stored ? JSON.parse(stored) : profiles[0];
   const otherProfiles = profiles.slice(1)
 
   // 追加: レスポンシブで表示個数を切り替え
@@ -114,3 +118,4 @@ export default function DemoPage() {
     </div>
   )
 }
+
