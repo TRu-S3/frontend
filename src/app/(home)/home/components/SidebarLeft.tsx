@@ -13,6 +13,16 @@ export default function SidebarLeft() {
   >([])
   const [conversationHistory, setConversationHistory] = useState<ChatMessage[]>([])
   const [isLoading, setIsLoading] = useState(false)
+  const [isGeneratingBio, setIsGeneratingBio] = useState(false)
+  const [bioInterviewData, setBioInterviewData] = useState<{
+    currentStep: number
+    answers: Record<string, string>
+    isInterviewMode: boolean
+  }>({
+    currentStep: 0,
+    answers: {},
+    isInterviewMode: false,
+  })
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const messagesContainerRef = useRef<HTMLDivElement>(null)
 
@@ -39,8 +49,42 @@ export default function SidebarLeft() {
       .replace(/^\s+|\s+$/g, '') // 前後の空白を除去
 
     setTimeout(() => {
+      // 「🤖 自己紹介文を自動生成する」ボタンの場合の特別処理
+      if (cleanOption.includes('自動生成')) {
+        // インタビューモードを開始
+        setBioInterviewData({
+          currentStep: 0,
+          answers: {},
+          isInterviewMode: true,
+        })
+
+        // 最初の質問を表示
+        const firstQuestion = bioQuestions[0]
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: `🤖 **自己紹介文自動生成インタビュー**\n\nより良い自己紹介文を作成するために、いくつか質問させていただきます。\n\n${firstQuestion.question}`,
+            sender: 'bot' as const,
+          },
+        ])
+        return
+      }
+
       const response = generateResponse(cleanOption)
-      setMessages((prev) => [...prev, { text: response, sender: 'bot' as const }])
+
+      // 自己紹介文の書き方の場合は、自動生成ボタンも追加
+      if (cleanOption.includes('自己紹介') || cleanOption.includes('紹介')) {
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: response,
+            sender: 'bot' as const,
+            options: ['🤖 自己紹介文を自動生成する'],
+          },
+        ])
+      } else {
+        setMessages((prev) => [...prev, { text: response, sender: 'bot' as const }])
+      }
     }, 500)
   }
 
@@ -49,18 +93,173 @@ export default function SidebarLeft() {
 
     const userMsg = { text: input, sender: 'user' as const }
     setMessages((prev) => [...prev, userMsg])
+    const userInput = input
     setInput('')
+
+    // インタビューモードの処理
+    if (bioInterviewData.isInterviewMode) {
+      const currentQuestion = bioQuestions[bioInterviewData.currentStep]
+
+      // 現在の質問に対する回答を保存
+      const updatedAnswers = {
+        ...bioInterviewData.answers,
+        [currentQuestion.id]: userInput,
+      }
+
+      const nextStep = bioInterviewData.currentStep + 1
+
+      // 次の質問がある場合
+      if (nextStep < bioQuestions.length) {
+        setBioInterviewData({
+          ...bioInterviewData,
+          currentStep: nextStep,
+          answers: updatedAnswers,
+        })
+
+        const nextQuestion = bioQuestions[nextStep]
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: nextQuestion.question,
+            sender: 'bot' as const,
+          },
+        ])
+      } else {
+        // 全ての質問が完了した場合、自己紹介文を生成
+        const finalAnswers = {
+          ...updatedAnswers,
+          [currentQuestion.id]: userInput,
+        }
+
+        setBioInterviewData({
+          currentStep: 0,
+          answers: {},
+          isInterviewMode: false,
+        })
+
+        setIsLoading(true)
+
+        try {
+          const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を800文字程度で作成してください。
+
+**収集した情報：**
+- 名前: ${finalAnswers.name || '未回答'}
+- 得意技術: ${finalAnswers.skills || '未回答'}
+- 経験年数: ${finalAnswers.experience || '未回答'}
+- 興味分野: ${finalAnswers.interests || '未回答'}
+- 希望する役割: ${finalAnswers.role || '未回答'}
+- 目標: ${finalAnswers.goals || '未回答'}
+- コミュニケーションスタイル: ${finalAnswers.communication || '未回答'}
+
+以下の要素を含めてください：
+- ハッカソンでの目標や意欲
+- 技術的な強みや経験
+- チームでの役割や貢献
+- コミュニケーションスタイル
+- 学びたいことや成長したい分野
+
+日本語で、親しみやすく、チームメンバーが見つけやすい内容にしてください。`
+
+          const response = await geminiAPI.generateResponse(prompt, [])
+
+          if (response.error) {
+            console.error('Gemini API error:', response.error)
+            setMessages((prev) => [
+              ...prev,
+              {
+                text: '申し訳ございません。自己紹介文の生成に失敗しました。',
+                sender: 'bot' as const,
+              },
+            ])
+          } else {
+            setMessages((prev) => [
+              ...prev,
+              {
+                text: `✨ **あなた専用の自己紹介文を生成しました！**\n\n${response.text}\n\nこの自己紹介文をコピーして、プロフィール編集画面で使用してください。`,
+                sender: 'bot' as const,
+              },
+            ])
+          }
+        } catch (error) {
+          console.error('Failed to generate bio:', error)
+          setMessages((prev) => [
+            ...prev,
+            {
+              text: '申し訳ございません。自己紹介文の生成に失敗しました。',
+              sender: 'bot' as const,
+            },
+          ])
+        } finally {
+          setIsLoading(false)
+        }
+      }
+      return
+    }
+
+    // 従来の自己紹介文生成モードの処理
+    if (isGeneratingBio) {
+      setIsGeneratingBio(false)
+      setIsLoading(true)
+
+      try {
+        const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を800文字程度で作成してください。
+
+ユーザーの入力: "${userInput}"
+
+以下の要素を含めてください：
+- ハッカソンでの目標や意欲
+- 技術的な強みや経験
+- チームでの役割や貢献
+- コミュニケーションスタイル
+- 学びたいことや成長したい分野
+
+日本語で、親しみやすく、チームメンバーが見つけやすい内容にしてください。`
+
+        const response = await geminiAPI.generateResponse(prompt, [])
+
+        if (response.error) {
+          console.error('Gemini API error:', response.error)
+          setMessages((prev) => [
+            ...prev,
+            {
+              text: '申し訳ございません。自己紹介文の生成に失敗しました。',
+              sender: 'bot' as const,
+            },
+          ])
+        } else {
+          setMessages((prev) => [
+            ...prev,
+            {
+              text: `✨ **あなた専用の自己紹介文を生成しました！**\n\n${response.text}\n\nこの自己紹介文をコピーして、プロフィール編集画面で使用してください。`,
+              sender: 'bot' as const,
+            },
+          ])
+        }
+      } catch (error) {
+        console.error('Failed to generate bio:', error)
+        setMessages((prev) => [
+          ...prev,
+          {
+            text: '申し訳ございません。自己紹介文の生成に失敗しました。',
+            sender: 'bot' as const,
+          },
+        ])
+      } finally {
+        setIsLoading(false)
+      }
+      return
+    }
 
     // Gemini APIを使用
     setIsLoading(true)
 
     try {
       // 会話履歴を更新
-      const updatedHistory = [...conversationHistory, { role: 'user' as const, parts: input }]
+      const updatedHistory = [...conversationHistory, { role: 'user' as const, parts: userInput }]
       setConversationHistory(updatedHistory)
 
       // Gemini APIから応答を取得
-      const response = await geminiAPI.generateResponse(input, updatedHistory)
+      const response = await geminiAPI.generateResponse(userInput, updatedHistory)
 
       if (response.error) {
         console.error('Gemini API error:', response.error)
@@ -112,7 +311,20 @@ export default function SidebarLeft() {
     }
 
     if (input.includes('自己紹介') || input.includes('紹介')) {
-      return `💬 **自己紹介文の書き方**\n\n**興味のある分野**\n• 特に興味のある技術\n• やりたいプロジェクト\n• 学びたいスキル\n\n**チームでやりたいこと**\n• リーダーシップ\n• 技術的な貢献\n• デザイン面での貢献\n\n**目標やビジョン**\n• 短期目標（次のハッカソン）\n• 長期目標（キャリア）\n• チームでの役割\n\n**性格・コミュニケーション**\n• 作業スタイル\n• コミュニケーション方法\n• チームワークの考え方\n\n魅力的な自己紹介で、良いチームメンバーを見つけましょう！`
+      return `💬 **自己紹介文の書き方**\n\n**興味のある分野**\n• 特に興味のある技術\n• やりたいプロジェクト\n• 学びたいスキル\n\n**チームでやりたいこと**\n• リーダーシップ\n• 技術的な貢献\n• デザイン面での貢献\n\n**目標やビジョン**\n• 短期目標（次のハッカソン）\n• 長期目標（キャリア）\n• チームでの役割\n\n**性格・コミュニケーション**\n• 作業スタイル\n• コミュニケーション方法\n• チームワークの考え方\n\n魅力的な自己紹介で、良いチームメンバーを見つけましょう！\n\n🤖 **AIで自己紹介文を自動生成することもできます！**`
+    }
+
+    if (input.includes('自動生成') || input.includes('生成')) {
+      // インタビューモードを開始
+      setBioInterviewData({
+        currentStep: 0,
+        answers: {},
+        isInterviewMode: true,
+      })
+
+      // 最初の質問を表示
+      const firstQuestion = bioQuestions[0]
+      return `🤖 **自己紹介文自動生成インタビュー**\n\nより良い自己紹介文を作成するために、いくつか質問させていただきます。\n\n${firstQuestion.question}`
     }
 
     // デフォルトの応答
@@ -157,6 +369,45 @@ export default function SidebarLeft() {
   const handleInputKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') handleSend()
   }
+
+  // 自己紹介文生成の質問リスト
+  const bioQuestions = [
+    {
+      id: 'name',
+      question: '👋 まずはお名前を教えてください（ニックネームでもOKです）',
+      placeholder: '例：田中太郎',
+    },
+    {
+      id: 'skills',
+      question: '💻 得意な技術やプログラミング言語はありますか？',
+      placeholder: '例：React, TypeScript, Python, デザイン',
+    },
+    {
+      id: 'experience',
+      question: '📚 プログラミングやハッカソンの経験年数はどのくらいですか？',
+      placeholder: '例：プログラミング1年、ハッカソン初参加',
+    },
+    {
+      id: 'interests',
+      question: '🎯 特に興味のある分野や技術はありますか？',
+      placeholder: '例：AI/機械学習、Webアプリ開発、UI/UXデザイン',
+    },
+    {
+      id: 'role',
+      question: '👥 チームではどのような役割を担いたいですか？',
+      placeholder: '例：フロントエンド開発、リーダー、デザイン担当',
+    },
+    {
+      id: 'goals',
+      question: '🚀 ハッカソンで達成したい目標や学びたいことはありますか？',
+      placeholder: '例：新しい技術を学ぶ、チーム開発の経験を積む',
+    },
+    {
+      id: 'communication',
+      question: '💬 コミュニケーションスタイルや作業スタイルについて教えてください',
+      placeholder: '例：積極的に発言する、コツコツ作業する、リーダーシップを取りたい',
+    },
+  ]
 
   return (
     <aside className='hidden lg:flex sticky top-[56px] left-0 z-20 flex-col border-r bg-gradient-to-b from-slate-50 to-white h-[calc(100vh-56px)] w-full'>
@@ -285,9 +536,38 @@ export default function SidebarLeft() {
 
         {/* 入力エリア */}
         <div className='space-y-3'>
+          {/* インタビュー進行状況 */}
+          {bioInterviewData.isInterviewMode && (
+            <div className='bg-blue-50 rounded-xl p-3 border border-blue-200'>
+              <div className='flex items-center justify-between mb-2'>
+                <span className='text-sm font-medium text-blue-700'>
+                  インタビュー進行中 ({bioInterviewData.currentStep + 1}/{bioQuestions.length})
+                </span>
+                <span className='text-xs text-blue-600'>
+                  {Math.round(((bioInterviewData.currentStep + 1) / bioQuestions.length) * 100)}%
+                </span>
+              </div>
+              <div className='w-full bg-blue-200 rounded-full h-2'>
+                <div
+                  className='bg-blue-600 h-2 rounded-full transition-all duration-300'
+                  style={{
+                    width: `${((bioInterviewData.currentStep + 1) / bioQuestions.length) * 100}%`,
+                  }}
+                />
+              </div>
+            </div>
+          )}
+
           <div className='flex items-center gap-3 bg-white rounded-2xl border-2 border-gray-200 p-2 hover:border-blue-300 transition-colors duration-200'>
             <Input
-              placeholder='メッセージを入力してください...'
+              placeholder={
+                bioInterviewData.isInterviewMode
+                  ? bioQuestions[bioInterviewData.currentStep]?.placeholder ||
+                    '回答を入力してください...'
+                  : isGeneratingBio
+                    ? 'あなたの特徴や希望を入力してください...'
+                    : 'メッセージを入力してください...'
+              }
               className='flex-1 border-0 bg-transparent focus:ring-0 focus:outline-none text-gray-700 placeholder:text-gray-400'
               value={input}
               onChange={(e) => setInput(e.target.value)}
@@ -297,7 +577,9 @@ export default function SidebarLeft() {
               size='icon'
               className='w-10 h-10 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 rounded-xl shadow-md hover:shadow-lg transition-all duration-200'
               onClick={handleSend}
-              disabled={!input.trim() || isLoading}
+              disabled={
+                !input.trim() || isLoading || (isGeneratingBio && !bioInterviewData.isInterviewMode)
+              }
             >
               {isLoading ? (
                 <div className='w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin' />
