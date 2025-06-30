@@ -1,121 +1,160 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { generateText } from 'ai';
+import { createGoogleGenerativeAI } from "@ai-sdk/google";
+import { Storage } from '@google-cloud/storage'
+import { v4 as uuidv4 } from 'uuid'
 import yaml from 'js-yaml'
+
+const AI_AGENT_BASE_URL = 'https://ai-agent-696136807010.asia-northeast1.run.app'
+const PROJECT_ID = process.env.PROJECT_ID
+const GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_APPLICATION_CREDENTIALS
+const BUCKET_NAME = process.env.BUCKET_NAME
+
+  const google = createGoogleGenerativeAI({
+  apiKey: process.env.GOOGLE_API_KEY!,
+})
+
 
 export async function POST(request: NextRequest) {
   try {
-    const { username } = await request.json()
-    
-    if (!username) {
-      return NextResponse.json({ error: 'Username is required' }, { status: 400 })
+
+    const body = await request.json()
+    const response = await fetch(`${AI_AGENT_BASE_URL}/api/workflows/repositoryAnalysisWorkflow/start-async`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(body),
+    })
+
+    if (!response.ok) {
+      return NextResponse.json(
+        { error: `AI Agentの呼び出しに失敗: ${response.status}` },
+        { status: response.status }
+      )
     }
 
-    // GitHubからユーザー情報を取得
-    const githubResponse = await fetch(`https://api.github.com/users/${username}`)
-    if (!githubResponse.ok) {
-      return NextResponse.json({ error: 'GitHub user not found' }, { status: 404 })
-    }
-    
-    const userData = await githubResponse.json()
-    
-    // リポジトリ情報を取得
-    const reposResponse = await fetch(`https://api.github.com/users/${username}/repos?sort=updated&per_page=10`)
-    const reposData = await reposResponse.ok ? await reposResponse.json() : []
-    
-    // YAMLデータを生成
-    const yamlData = {
-      user: {
-        username: userData.login,
-        name: userData.name || userData.login,
-        bio: userData.bio || '',
-        avatar_url: userData.avatar_url,
-        location: userData.location || '',
-        company: userData.company || '',
-        blog: userData.blog || '',
-        twitter_username: userData.twitter_username || '',
-        public_repos: userData.public_repos,
-        followers: userData.followers,
-        following: userData.following,
-        created_at: userData.created_at,
-        updated_at: userData.updated_at
-      },
-      repositories: reposData.map((repo: any) => ({
-        name: repo.name,
-        description: repo.description || '',
-        language: repo.language || '',
-        stargazers_count: repo.stargazers_count,
-        forks_count: repo.forks_count,
-        updated_at: repo.updated_at,
-        topics: repo.topics || [],
-        html_url: repo.html_url
-      })),
-      analysis: {
-        primary_languages: getPrimaryLanguages(reposData),
-        total_stars: reposData.reduce((sum: number, repo: any) => sum + repo.stargazers_count, 0),
-        total_forks: reposData.reduce((sum: number, repo: any) => sum + repo.forks_count, 0),
-        account_age_days: Math.floor((Date.now() - new Date(userData.created_at).getTime()) / (1000 * 60 * 60 * 24)),
-        activity_score: calculateActivityScore(reposData)
-      }
-    }
-    
-    // YAMLに変換
-    const yamlString = yaml.dump(yamlData, { 
-      indent: 2,
-      lineWidth: 120,
-      noRefs: true 
-    })
-    
-    // 文字コードをUTF-8で指定
-    const yamlBuffer = Buffer.from(yamlString, 'utf-8')
-    
-    // GCSへのアップロード（実際のGCS設定が必要）
-    // const gcsUrl = await uploadToGCS(yamlBuffer, `${username}-profile.yaml`)
-    
-    return NextResponse.json({
-      success: true,
-      data: yamlData,
-      yaml: yamlString,
-      // gcs_url: gcsUrl
-    })
-    
+    const data = await response.json();
+    const yaml = data.result?.yaml
+
+    // GCSにyamlをTXT形式でアップロード
+    const uploadResult = await gcsFileUpload(yaml)
+
+    // YAMLをプロファイルJSONに変換
+    const profileJson = await yamlToProfile(yaml)
+    return NextResponse.json(profileJson)
+
+
   } catch (error) {
-    console.error('Error processing user profile:', error)
+    console.error('エラー:', error)
     return NextResponse.json(
-      { error: 'Failed to process user profile' }, 
+      { error: 'AI Agentとの通信に失敗しました' },
       { status: 500 }
     )
   }
 }
 
-function getPrimaryLanguages(repos: any[]): string[] {
-  const languageCount: { [key: string]: number } = {}
+async function yamlToProfile(yaml: string) {
+  const model = google("gemini-2.0-flash-001");
+  const prompt = `
+以下のGitHubユーザーの分析結果（YAML）を、次のようなJSON形式に変換してください：
+
+{
+  name: '...',
+  bio: [与えられた情報をもとに簡単にユーザーの紹介文を書く],
+  skills: {
+    hackathonCount: ...,
+    strongRoles: [...],
+    challengeRoles: [...]
+  },
+  projects: {
+    blog: '...',
+    github: https://github.com/[ここにgithub_usernameの値を入れる]
+  },
+  github: {
+    repositories: ...,
+    contributions: ...,
+    languages: [...],
+    frameworks: [...],
+    achievements: [...],
+    recentProjects: [ここもプロジェクトの内容を説明する]
+  }
+}
+
+変換対象（YAML）:
+${yaml}
+
+- JSONとしてのみ出力してください。余計な説明やコメントは不要です。
+- **すべての値を必ず埋めてください**。
+- **結果は日本語で記述してください**。
+`
+
+  const result = await generateText({ model, prompt })
+  const cleaned_result = result.text.replace(/```(?:json)?\s*|\s*```/g, "").trim();
+
+  try {
+    const extractedJson = JSON.parse(cleaned_result)
+    return extractedJson
+  } catch (e) {
+    console.error('JSONパース失敗:', e)
+    throw new Error('Geminiの出力をJSONとして解釈できませんでした')
+  }
+}
+
+async function gcsFileUpload(yaml: string) {
+  if (!BUCKET_NAME || !GOOGLE_APPLICATION_CREDENTIALS) {
+     throw new Error('環境変数が取得できませんでした。')
+  }
   
-  repos.forEach(repo => {
-    if (repo.language) {
-      languageCount[repo.language] = (languageCount[repo.language] || 0) + 1
-    }
+  const storage = new Storage({
+    projectId: PROJECT_ID,
+    credentials: JSON.parse(GOOGLE_APPLICATION_CREDENTIALS),
   })
-  
-  return Object.entries(languageCount)
-    .sort(([,a], [,b]) => b - a)
-    .slice(0, 5)
-    .map(([language]) => language)
+  const bucket = storage.bucket(BUCKET_NAME)
+
+  const { llmText, repository_summaries } = await yamlToText(yaml)
+
+  const combinedText = `${llmText}\n${repository_summaries}`
+
+  const uniqueId = uuidv4()
+  const filePath = `rag/${Date.now()}-${uuidv4()}.txt`
+  const buffer = Buffer.from(combinedText, 'utf-8')
+
+  await bucket.file(filePath).save(buffer, {
+    contentType: 'text/plain; charset=utf-8',
+  })
+
+  return {
+    message: 'TXTファイルをアップロードしました',
+    path: `gs://${BUCKET_NAME}/${filePath}`,
+    fileId: uniqueId,
+  }
 }
 
-function calculateActivityScore(repos: any[]): number {
-  if (repos.length === 0) return 0
-  
-  const now = new Date()
-  const recentActivity = repos.filter(repo => {
-    const updatedAt = new Date(repo.updated_at)
-    const daysDiff = (now.getTime() - updatedAt.getTime()) / (1000 * 60 * 60 * 24)
-    return daysDiff <= 30 // 30日以内の更新
-  }).length
-  
-  return Math.round((recentActivity / repos.length) * 100)
-}
 
-// GCSアップロード関数（実際の実装が必要）
-// async function uploadToGCS(buffer: Buffer, filename: string): Promise<string> {
-//   // Google Cloud Storage SDKを使用した実装
-//   return `https://storage.googleapis.com/bucket-name/${filename}`
-// } 
+async function yamlToText(yamlStr: string) {
+  const model = google("gemini-2.0-flash-001");
+
+  const parsed = yaml.load(yamlStr) as any
+  const publicSection = parsed?.public
+
+  const { repository_summaries, ...rest } = publicSection
+  const yamlForLLM = yaml.dump({ public: rest })
+
+
+  const prompt = `
+以下のGitHubユーザーの分析結果（YAML）をテキストで説明してください。
+
+変換対象（YAML）:
+${yamlForLLM}
+
+- 必ずテキスト形式で出力してください。余計な説明やコメントは不要です。
+- **結果は日本語で記述してください**。
+`
+  const result = await generateText({ model, prompt })
+
+  return {
+    llmText: result.text,
+    repository_summaries,
+  }
+}
