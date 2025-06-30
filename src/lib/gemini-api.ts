@@ -16,8 +16,11 @@ class GeminiAPI {
   private lastRequestTime = 0
 
   constructor() {
-    this.apiKey = process.env.NEXT_PUBLIC_AI_CHAT || ''
-    this.projectId = process.env.NEXT_PUBLIC_GCP_PROJECT_ID || 'zenn-ai-agent-hackathon-460205'
+    const API_KEY = 'AIzaSyBeWpq-gbnBOUBFH1mvP9L5dAfww7zjHbg';
+    const PROJECT_ID = 'zenn-ai-agent-hackathon-460205';
+
+    this.apiKey = API_KEY;
+    this.projectId = PROJECT_ID;
 
     // Google Cloud APIキーを使用する場合のエンドポイント
     this.baseUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`
@@ -44,9 +47,9 @@ class GeminiAPI {
       console.log('Project ID:', this.projectId)
       console.log('Base URL:', this.baseUrl)
       console.log('Environment variables:', {
-        NEXT_PUBLIC_AI_CHAT: process.env.NEXT_PUBLIC_AI_CHAT ? 'Set' : 'Not set',
+        NEXT_PUBLIC_AI_CHAT: API_KEY ? 'Set' : 'Not set',
         AI_CHAT: process.env.AI_CHAT ? 'Set' : 'Not set',
-        NEXT_PUBLIC_GCP_PROJECT_ID: process.env.NEXT_PUBLIC_GCP_PROJECT_ID ? 'Set' : 'Not set',
+        NEXT_PUBLIC_GCP_PROJECT_ID: PROJECT_ID ? 'Set' : 'Not set',
       })
       console.log('================================')
     }

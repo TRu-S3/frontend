@@ -25,7 +25,7 @@ try {
 
   // 環境変数の取得
   const envVars = {
-    projectId: process.env.FIREBASE_PROJECT_ID || process.env.NEXT_PUBLIC_PROJECT_ID,
+    projectId: process.env.FIREBASE_PROJECT_ID || 'zenn-ai-agent-hackathon-460205',
     clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
     privateKey: process.env.FIREBASE_PRIVATE_KEY?.replace(/\\n/g, '\n'),
   }

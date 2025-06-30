@@ -3,8 +3,7 @@
 import { getIdToken } from './auth-token'
 
 // バックエンドのベースURL
-const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || 'https://backend-696136807010.asia-northeast1.run.app'
+const BASE_URL = 'https://backend-696136807010.asia-northeast1.run.app'
 
 // HTTPメソッドの型
 type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH'
@@ -172,7 +171,7 @@ export const apiClient = {
     }
 
     // APIリクエストを実行
-    const fullUrl = endpoint.startsWith('http') ? endpoint : `${API_BASE_URL}${endpoint}`
+    const fullUrl = endpoint.startsWith('http') ? endpoint : `${BASE_URL}${endpoint}`
 
     // リクエストボディの準備
     const requestBody = body ? JSON.stringify(body) : undefined

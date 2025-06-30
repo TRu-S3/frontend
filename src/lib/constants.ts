@@ -1,6 +1,6 @@
 // API関連の定数
 export const API_CONSTANTS = {
-  BASE_URL: process.env.NEXT_PUBLIC_API_BASE_URL || 'https://backend-696136807010.asia-northeast1.run.app',
+  BASE_URL: 'https://backend-696136807010.asia-northeast1.run.app',
   TIMEOUT: 10000, // 10秒
   RETRY_ATTEMPTS: 3,
 } as const
