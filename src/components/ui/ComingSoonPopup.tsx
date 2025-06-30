@@ -4,8 +4,6 @@ import React from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 import { Calendar, Star } from 'lucide-react'
-import { useRouter } from 'next/navigation'
-
 interface ComingSoonPopupProps {
   open: boolean
   onOpenChange: (open: boolean) => void
@@ -21,12 +19,10 @@ export default function ComingSoonPopup({
   eventName = 'Google Cloud Next Tokyo 2025',
   description,
 }: ComingSoonPopupProps) {
-  const router = useRouter()
   const defaultDescription = `${featureName}機能は現在開発中です。${eventName}でリリース予定です。`
 
   const handleClose = () => {
     onOpenChange(false)
-    router.push('/home')
   }
 
   return (

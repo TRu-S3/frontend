@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
-import UserCard from '@/components/user/UserCard'
+import { UserCard } from '@/components/user/UserCard'
 import { useUserContests } from '@/hooks/useUserContests'
 import UserContestsList from './UserContestsList'
 
