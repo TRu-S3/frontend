@@ -9,6 +9,7 @@ import { Plus } from 'lucide-react'
 import { createPortal } from 'react-dom'
 import { Confetti } from '@/components/ui/confetti'
 import { contestsApi } from '@/lib/api/contests'
+import { useCurrentUser } from '@/hooks/useCurrentUser'
 
 /**
  * ハッカソン情報の型だよん
@@ -45,6 +46,8 @@ export default function MatchingPopup({
   initialHackathonName,
   recommendedHackathons,
 }: MatchingPopupProps) {
+  const { user: currentUser } = useCurrentUser()
+
   /**
    * フォームの状態を一元管理するreducerだよん
    */
@@ -186,6 +189,12 @@ export default function MatchingPopup({
     setLoading(true)
     setErrorMessage(null)
 
+    if (!currentUser?.id) {
+      setErrorMessage('ユーザー情報の取得に失敗しました。再度ログインしてください。')
+      setLoading(false)
+      return
+    }
+
     try {
       if (!isFormValid) {
         setErrorMessage('必須項目が未入力です')
@@ -201,7 +210,7 @@ export default function MatchingPopup({
       const contestData = {
         title: form.hackathonName,
         description: form.description,
-        author_id: 1, // TODO: 実際のユーザーIDを取得
+        author_id: currentUser.id,
         start_time: startTime || '0001-01-01T00:00:00Z',
         end_time: endTime || '0001-01-01T00:00:00Z',
         application_deadline: applicationDeadline,

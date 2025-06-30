@@ -11,6 +11,8 @@ import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Calendar, MapPin, Tag, User, Save, Loader2 } from 'lucide-react'
 import ComingSoonPopup from '@/components/ui/ComingSoonPopup'
+import { contestsApi, Contest } from '@/lib/api/contests'
+import UserContestsList from '@/app/(home)/home/components/UserContestsList'
 
 // 定数
 const MAX_BIO_LENGTH = 1000
@@ -184,7 +186,7 @@ const EmailField = ({
 }) => (
   <div className='space-y-2'>
     <label className='block text-sm font-medium text-gray-700 mb-2'>メールアドレス</label>
-    <Input type='email' value={email} placeholder='example@gmail.com' className='w-full' disabled />
+    <Input type='text' value={email} placeholder='example@gmail.com' className='w-full' disabled />
     <div className='flex items-center space-x-2'>
       <input
         type='checkbox'
@@ -366,13 +368,7 @@ const TagField = ({
 )
 
 // SNS専用フィールド
-const SnsField = ({
-  sns,
-  onDisabledFocus,
-}: {
-  sns: SnsInfo
-  onDisabledFocus: () => void
-}) => (
+const SnsField = ({ sns, onDisabledFocus }: { sns: SnsInfo; onDisabledFocus: () => void }) => (
   <div className='space-y-2'>
     <label className='block text-sm font-medium text-gray-700 mb-2'>SNS情報（任意）</label>
     <div className='grid grid-cols-1 md:grid-cols-2 gap-3'>
@@ -540,6 +536,7 @@ export default function ProfilePage() {
     autoFetch: true,
   })
   const { tags } = useTags()
+  const [myContests, setMyContests] = useState<Contest[]>([])
 
   const [formData, setFormData] = useState<FormData>({
     name: '',
@@ -567,7 +564,7 @@ export default function ProfilePage() {
       // 既存のプロフィールデータがある場合
       setFormData({
         name: currentUser?.name || '',
-        email: currentUser?.gmail || '',
+        email: '',
         emailPublic: false, // デフォルトは非公開
         sns: {
           x: '',
@@ -599,6 +596,13 @@ export default function ProfilePage() {
       })
     }
   }, [profile, currentUser, profileLoading])
+
+  useEffect(() => {
+    if (!currentUser?.id) return
+    contestsApi.list({ author_id: currentUser.id }).then((res) => {
+      setMyContests(res.contests || [])
+    })
+  }, [currentUser?.id])
 
   // フォームデータの更新ハンドラー
   const handleFormChange = useCallback((field: keyof FormData, value: string | number | null) => {
@@ -795,6 +799,12 @@ export default function ProfilePage() {
             <ProfilePreview currentUser={currentUser} formData={formData} tags={tags} />
           </div>
         </div>
+
+        {myContests.length > 0 && (
+          <div className='mt-10'>
+            <UserContestsList contests={myContests} />
+          </div>
+        )}
       </div>
     </div>
   )

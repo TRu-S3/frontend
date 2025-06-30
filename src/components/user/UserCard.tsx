@@ -3,7 +3,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar'
 import { Button } from '@/components/ui/button'
-import { User, MapPin, Calendar, Tag } from 'lucide-react'
+import { MapPin, Calendar, Tag } from 'lucide-react'
 import { User as BackendUser } from '@/lib/api/users'
 import { useProfile } from '@/hooks/useProfile'
 import BookmarkButton from '@/components/bookmark/BookmarkButton'
@@ -14,10 +14,11 @@ interface UserCardProps {
   showBookmark?: boolean
   onUserClick?: (user: BackendUser) => void
   children?: React.ReactNode
+  compact?: boolean
 }
 
 export const UserCard = memo(
-  ({ user, showBookmark = true, onUserClick, children }: UserCardProps) => {
+  ({ user, showBookmark = true, onUserClick, children, compact = false }: UserCardProps) => {
     const { profile } = useProfile({ userId: user.id })
 
     const getInitials = (name: string) => {
@@ -29,7 +30,9 @@ export const UserCard = memo(
     }
 
     const formatDate = (dateString: string) => {
+      if (!dateString) return '-'
       const date = new Date(dateString)
+      if (isNaN(date.getTime())) return '-'
       return new Intl.DateTimeFormat('ja-JP', {
         year: 'numeric',
         month: 'short',
@@ -38,9 +41,11 @@ export const UserCard = memo(
     }
 
     return (
-      <Card className='hover:shadow-md transition-shadow duration-200'>
-        <CardHeader className='flex flex-row items-center gap-4'>
-          <Avatar className='w-16 h-16'>
+      <Card
+        className={`hover:shadow-md transition-shadow duration-200 ${compact ? 'max-w-xs p-2 text-xs' : ''}`}
+      >
+        <CardHeader className={`flex flex-row items-center gap-4 ${compact ? 'p-2' : ''}`}>
+          <Avatar className={compact ? 'w-10 h-10' : 'w-16 h-16'}>
             {user.icon_url ? (
               <AvatarImage src={user.icon_url} alt={`${user.name}のプロフィール画像`} />
             ) : (
@@ -50,14 +55,12 @@ export const UserCard = memo(
             )}
           </Avatar>
           <div className='flex-1'>
-            <CardTitle className='text-lg'>{user.name}</CardTitle>
-            <div className='flex items-center gap-2 mt-1 text-sm text-gray-500'>
-              <User className='w-4 h-4' aria-hidden='true' />
-              <span>{user.gmail}</span>
-            </div>
+            <CardTitle className={compact ? 'text-base' : 'text-lg'}>{user.name}</CardTitle>
             {/* プロフィール情報を表示 */}
             {profile && (
-              <div className='flex flex-wrap items-center gap-3 mt-2 text-xs text-gray-600'>
+              <div
+                className={`flex flex-wrap items-center gap-2 mt-1 text-gray-600 ${compact ? 'text-xs' : 'text-xs'}`}
+              >
                 {profile.age && (
                   <div className='flex items-center gap-1'>
                     <Calendar className='w-3 h-3' aria-hidden='true' />
@@ -82,22 +85,22 @@ export const UserCard = memo(
             )}
           </div>
           <div className='flex items-center gap-2'>
-            {showBookmark && <BookmarkButton targetUserId={user.id} size='sm' />}
+            {showBookmark && <BookmarkButton targetUserId={user.id} size={compact ? 'sm' : 'sm'} />}
           </div>
         </CardHeader>
-        <CardContent>
-          <div className='space-y-4'>
+        <CardContent className={compact ? 'p-2' : ''}>
+          <div className='space-y-2'>
             <div className='text-gray-700'>
               {profile?.bio ? (
-                <p className='mb-2'>{profile.bio}</p>
+                <p className='mb-1'>{profile.bio}</p>
               ) : (
-                <p className='mb-2'>
+                <p className='mb-1'>
                   こんにちは！私は{user.name}です！ハッカソンに一緒に出てくれる仲間を探しています！
                 </p>
               )}
             </div>
 
-            <div className='text-sm text-gray-500 space-y-1'>
+            <div className={`text-gray-500 ${compact ? 'text-xs' : 'text-sm'} space-y-1`}>
               <p>登録日: {formatDate(user.created_at)}</p>
               {user.updated_at && user.updated_at !== user.created_at && (
                 <p>更新日: {formatDate(user.updated_at)}</p>
@@ -106,7 +109,12 @@ export const UserCard = memo(
             </div>
 
             {onUserClick && (
-              <Button variant='outline' className='w-full' onClick={() => onUserClick(user)}>
+              <Button
+                variant='outline'
+                className='w-full'
+                onClick={() => onUserClick(user)}
+                size={compact ? 'sm' : 'default'}
+              >
                 詳細を見る
               </Button>
             )}
