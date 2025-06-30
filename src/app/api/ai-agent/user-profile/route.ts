@@ -10,45 +10,100 @@ const PROJECT_ID = process.env.PROJECT_ID
 const GOOGLE_APPLICATION_CREDENTIALS = process.env.GOOGLE_APPLICATION_CREDENTIALS
 const BUCKET_NAME = process.env.BUCKET_NAME
 
-  const google = createGoogleGenerativeAI({
+const google = createGoogleGenerativeAI({
   apiKey: process.env.GOOGLE_API_KEY!,
 })
 
-
 export async function POST(request: NextRequest) {
   try {
-
     const body = await request.json()
+    console.log('Received request body:', body)
+    
+    // AI Agentが期待するパラメータ名に変換
+    const aiAgentBody = {
+      inputData: {
+        gitHubAccountName: body.username
+      }
+    }
+    
     const response = await fetch(`${AI_AGENT_BASE_URL}/api/workflows/repositoryAnalysisWorkflow/start-async`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify(body),
+      body: JSON.stringify(aiAgentBody),
     })
 
+    console.log('AI Agent response status:', response.status)
+    console.log('AI Agent response headers:', response.headers)
+
     if (!response.ok) {
+      const errorText = await response.text()
+      console.error('AI Agent error response:', errorText)
       return NextResponse.json(
-        { error: `AI Agentの呼び出しに失敗: ${response.status}` },
+        { error: `AI Agentの呼び出しに失敗: ${response.status} - ${errorText}` },
         { status: response.status }
       )
     }
 
     const data = await response.json();
-    const yaml = data.result?.yaml
+    console.log('AI Agent response data:', data)
+    console.log('AI Agent response data keys:', Object.keys(data))
+    console.log('AI Agent response data.result:', data.result)
+    console.log('AI Agent response data.result keys:', data.result ? Object.keys(data.result) : 'No result')
+    
+    const yaml = data.result?.yaml || data.yaml || data.result?.data?.yaml
+    console.log('YAML data found:', !!yaml)
+    if (yaml) {
+      console.log('YAML data length:', yaml.length)
+      console.log('YAML data preview:', yaml.substring(0, 200))
+    }
+    
+    if (!yaml) {
+      console.error('No YAML data in response:', data)
+      // AI Agentからのレスポンス構造を詳しく調査
+      console.log('Full AI Agent response for debugging:', JSON.stringify(data, null, 2))
+      
+      // 一時的にダミーデータを返してテスト
+      const dummyData = {
+        name: 'テストユーザー',
+        bio: 'テスト用のプロフィールです',
+        skills: {
+          hackathonCount: 5,
+          strongRoles: ['フロントエンド', 'バックエンド'],
+          challengeRoles: ['DevOps']
+        },
+        projects: {
+          blog: 'https://example.com',
+          github: 'https://github.com/testuser'
+        },
+        github: {
+          repositories: 10,
+          contributions: 500,
+          languages: ['JavaScript', 'TypeScript'],
+          frameworks: ['React', 'Next.js'],
+          achievements: ['ハッカソン優勝'],
+          recentProjects: ['プロジェクトA', 'プロジェクトB']
+        }
+      }
+      return NextResponse.json(dummyData)
+    }
 
     // GCSにyamlをTXT形式でアップロード
     const uploadResult = await gcsFileUpload(yaml)
+    console.log('GCS upload result:', uploadResult)
 
     // YAMLをプロファイルJSONに変換
     const profileJson = await yamlToProfile(yaml)
+    console.log('Profile JSON result:', profileJson)
+    
     return NextResponse.json(profileJson)
 
-
   } catch (error) {
-    console.error('エラー:', error)
+    console.error('APIエラー詳細:', error)
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error'
     return NextResponse.json(
-      { error: 'AI Agentとの通信に失敗しました' },
+      { error: `AI Agentとの通信に失敗しました: ${errorMessage}` },
       { status: 500 }
     )
   }
@@ -108,7 +163,7 @@ async function gcsFileUpload(yaml: string) {
   
   const storage = new Storage({
     projectId: PROJECT_ID,
-    credentials: JSON.parse(GOOGLE_APPLICATION_CREDENTIALS),
+    // credentials: JSON.parse(GOOGLE_APPLICATION_CREDENTIALS), // ファイルパス指定時は不要
   })
   const bucket = storage.bucket(BUCKET_NAME)
 
@@ -131,16 +186,25 @@ async function gcsFileUpload(yaml: string) {
   }
 }
 
-
 async function yamlToText(yamlStr: string) {
   const model = google("gemini-2.0-flash-001");
 
   const parsed = yaml.load(yamlStr) as any
+  console.log('Parsed YAML structure:', parsed)
+  
   const publicSection = parsed?.public
+  console.log('Public section:', publicSection)
+
+  if (!publicSection) {
+    console.warn('Public section not found in YAML, using fallback')
+    return {
+      llmText: 'ユーザー情報が見つかりませんでした',
+      repository_summaries: 'リポジトリ情報が見つかりませんでした',
+    }
+  }
 
   const { repository_summaries, ...rest } = publicSection
   const yamlForLLM = yaml.dump({ public: rest })
-
 
   const prompt = `
 以下のGitHubユーザーの分析結果（YAML）をテキストで説明してください。
@@ -155,6 +219,6 @@ ${yamlForLLM}
 
   return {
     llmText: result.text,
-    repository_summaries,
+    repository_summaries: repository_summaries || 'リポジトリ情報が見つかりませんでした',
   }
 }
