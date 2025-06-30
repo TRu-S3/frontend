@@ -6,7 +6,52 @@ import { profiles } from './components/profiles'
 type Profile = (typeof profiles)[number]
 
 export default function DemoPage() {
-  const mainProfile = profiles[0]
+  // sessionStorageからデータ取得
+  let profileData = null
+  if (typeof window !== 'undefined') {
+    const stored = sessionStorage.getItem('aiResult')
+    profileData = stored ? JSON.parse(stored) : null
+  }
+
+  console.log('Profile data from sessionStorage:', profileData)
+
+  if (!profileData) return <div>データがありません</div>
+
+  // APIから返されるデータ構造に応じて整形
+  let cardProps
+  if (profileData.data) {
+    // 元の構造（user, analysis, repositories）
+    const user = profileData.data.user
+    const analysis = profileData.data.analysis
+    cardProps = {
+      name: user.name || user.username,
+      bio: user.bio || '',
+      skills: {
+        hackathonCount: analysis?.hackathon_count || 0,
+        strongRoles: analysis?.strong_roles || [],
+        challengeRoles: analysis?.challenge_roles || [],
+      },
+      projects: {
+        blog: user.blog || '',
+        github: user.html_url || '',
+      },
+      github: {
+        repositories: user.public_repos || 0,
+        contributions: analysis?.contributions || 0,
+        languages: analysis?.primary_languages || [],
+        frameworks: analysis?.frameworks || [],
+        achievements: analysis?.achievements || [],
+        recentProjects: profileData.data.repositories?.map((repo: any) => repo.name) || [],
+      },
+    }
+  } else {
+    // 直接ProfileCardのProps形式で返される場合
+    cardProps = profileData
+  }
+
+  console.log('Card props:', cardProps)
+
+  const mainProfile = profiles[0];
   const otherProfiles = profiles.slice(1)
 
   // 追加: レスポンシブで表示個数を切り替え
@@ -67,13 +112,7 @@ export default function DemoPage() {
       <div className='relative z-20 flex flex-col min-h-screen md:flex-row p-4 gap-4'>
         {/* メインのプロフィールカード（左側に1/2） */}
         <div className='w-full md:w-1/2 p-4'>
-          <ProfileCard
-            name={mainProfile.name}
-            bio={mainProfile.bio}
-            skills={mainProfile.skills}
-            projects={mainProfile.projects}
-            github={mainProfile.github}
-          />
+          <ProfileCard {...cardProps} />
         </div>
         {/* サブカード（右側に1/2、レスポンシブで個数可変） */}
         <div className='w-full md:w-1/2 grid grid-cols-2 grid-rows-2 xl:grid-cols-3 xl:grid-rows-3 gap-2 p-4'>
@@ -114,3 +153,4 @@ export default function DemoPage() {
     </div>
   )
 }
+
