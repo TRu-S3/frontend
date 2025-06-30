@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Calendar, User, Target, MessageSquare, Users, Globe, Mail } from 'lucide-react'
+import { Calendar, User, Target, MessageSquare, Users, Globe } from 'lucide-react'
 import { Contest } from '@/lib/api/contests'
 import { usersApi, User as UserType } from '@/lib/api/users'
 import Image from 'next/image'
@@ -203,10 +203,6 @@ const ContestDetailPopup: React.FC<ContestDetailPopupProps> = ({ contest, isOpen
                   ) : author ? (
                     <div className='space-y-1'>
                       <div className='font-medium text-gray-800 text-sm'>{author.name}</div>
-                      <div className='flex items-center gap-2 text-xs text-gray-600'>
-                        <Mail className='w-3 h-3' />
-                        <span>{author.gmail}</span>
-                      </div>
                     </div>
                   ) : (
                     <div className='text-gray-500 text-sm'>投稿者情報を取得できませんでした</div>

@@ -47,7 +47,7 @@ export default function RecommendedHackathonCard({
       <CardContent>
         <div className='flex items-center gap-2 mb-2'>
           <div className='w-8 h-8 rounded-full bg-gradient-to-br from-orange-400 to-red-500 flex items-center justify-center'>
-            <span className='text-white text-sm font-bold'>Z</span>
+            <span className='text-white text-sm font-bold'>{name.charAt(0)}</span>
           </div>
           <div className='font-semibold text-sm text-gray-800'>{name}</div>
         </div>
@@ -59,7 +59,9 @@ export default function RecommendedHackathonCard({
             </div>
           ) : showFallback ? (
             <div className='w-full h-full flex items-center justify-center bg-gradient-to-br from-blue-200 to-indigo-200 rounded-lg border-2'>
-              <span className='text-lg md:text-2xl font-bold text-blue-700 text-center break-words px-2'>{name}</span>
+              <span className='text-lg md:text-2xl font-bold text-blue-700 text-center break-words px-2'>
+                {name}
+              </span>
             </div>
           ) : (
             <Image
@@ -74,9 +76,7 @@ export default function RecommendedHackathonCard({
             />
           )}
         </div>
-        <div className='text-xs text-gray-600 leading-relaxed'>
-          {description}
-        </div>
+        <div className='text-xs text-gray-600 leading-relaxed'>{description}</div>
         <div className='flex items-center justify-between mb-3'>
           <div className='flex items-center gap-2 text-xs text-gray-600'>
             <Users className='w-3 h-3' />
@@ -106,4 +106,4 @@ export default function RecommendedHackathonCard({
       </CardContent>
     </Card>
   )
-} 
+}

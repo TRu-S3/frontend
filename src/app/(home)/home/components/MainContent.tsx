@@ -1,16 +1,20 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs'
 import { Button } from '@/components/ui/button'
 import { ChevronLeft, ChevronRight, Loader2 } from 'lucide-react'
 import { useUsers } from '@/hooks/useUsers'
 import { useCurrentUser } from '@/hooks/useCurrentUser'
-import UserCard from '@/components/user/UserCard'
+import { UserCard } from '@/components/user/UserCard'
 import { useUserContests } from '@/hooks/useUserContests'
 import UserContestsList from './UserContestsList'
 
-export default function MainContent() {
+interface MainContentProps {
+  selectedUserId?: number
+}
+
+export default function MainContent({ selectedUserId }: MainContentProps) {
   const { user: currentUser, loading: currentUserLoading } = useCurrentUser()
   const {
     users,
@@ -30,6 +34,15 @@ export default function MainContent() {
   const handlePrev = () =>
     setCurrentIndex((prev) => (prev - 1 + otherUsers.length) % otherUsers.length)
   const handleNext = () => setCurrentIndex((prev) => (prev + 1) % otherUsers.length)
+
+  // 外部からユーザーID指定でcurrentIndexを切り替え
+  useEffect(() => {
+    if (selectedUserId) {
+      const idx = otherUsers.findIndex((u) => u.id === selectedUserId)
+      if (idx !== -1) setCurrentIndex(idx)
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedUserId])
 
   // ローディング状態
   if (loading) {
