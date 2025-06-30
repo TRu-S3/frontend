@@ -161,7 +161,7 @@ export default function SidebarLeft({ onUserSelect }: SidebarLeftProps) {
         setIsLoading(true)
 
         try {
-          const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を800文字程度で作成してください。
+          const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を100文字程度で作成してください。
 
 **収集した情報：**
 - 名前: ${finalAnswers.name || '未回答'}
@@ -300,7 +300,7 @@ export default function SidebarLeft({ onUserSelect }: SidebarLeftProps) {
       setIsLoading(true)
 
       try {
-        const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を800文字程度で作成してください。
+        const prompt = `以下の情報を基に、ハッカソン参加者向けの魅力的な自己紹介文を100文字程度で作成してください。
 
 ユーザーの入力: "${userInput}"
 
