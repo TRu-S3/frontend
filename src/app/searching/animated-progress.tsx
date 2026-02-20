@@ -130,7 +130,11 @@ const CompletionScreen = () => {
   )
 }
 
-export function AnimatedProgress() {
+interface AnimatedProgressProps {
+  onComplete?: () => void
+}
+
+export function AnimatedProgress({ onComplete }: AnimatedProgressProps) {
   const [currentPhase, setCurrentPhase] = useState(0)
   const [progress, setProgress] = useState(0)
   const [isComplete, setIsComplete] = useState(false)
@@ -154,13 +158,17 @@ export function AnimatedProgress() {
     setIsComplete(true)
     setTimeout(() => {
       try {
-        router.push('/demo')
+        if (onComplete) {
+          onComplete()
+        } else {
+          router.push('/demo')
+        }
       } catch (err) {
         setError('ページ遷移に失敗しました')
         console.error('Navigation error:', err)
       }
     }, ANIMATION_CONFIG.COMPLETION_DELAY)
-  }, [router])
+  }, [router, onComplete])
 
   useEffect(() => {
     if (!currentPhaseData) return
